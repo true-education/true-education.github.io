@@ -22,5 +22,17 @@
     "tradingHaltEndDate": "20260113",
     "newShareListingDate": "20260114",
     "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251022000237"
+  },
+  {
+    "nameKr": "비엔케이제2호스팩",
+    "code": "473370",
+    "dissentNoticeStartDate": "20260123",
+    "dissentNoticeEndDate": "20260206",
+    "appraisalRightStartDate": "20260209",
+    "appraisalRightEndDate": "20260303",
+    "tradingHaltStartDate": "20260312",
+    "tradingHaltEndDate": "20260402",
+    "newShareListingDate": "20260403",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251222000231"
   }
 ]
