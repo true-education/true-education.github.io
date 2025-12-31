@@ -1,17 +1,5 @@
 [
   {
-    "nameKr": "IBKS제22호스팩",
-    "code": "448760",
-    "dissentNoticeStartDate": "20251029",
-    "dissentNoticeEndDate": "20251112",
-    "appraisalRightStartDate": "20251113",
-    "appraisalRightEndDate": "20251203",
-    "tradingHaltStartDate": "20251212",
-    "tradingHaltEndDate": "20251226",
-    "newShareListingDate": "20251229",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251128000463"
-  },
-  {
     "nameKr": "미래에셋비전스팩3호",
     "code": "448830",
     "dissentNoticeStartDate": "20251103",
