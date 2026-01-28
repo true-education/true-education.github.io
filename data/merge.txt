@@ -1,29 +1,5 @@
 [
   {
-    "nameKr": "미래에셋비전스팩3호",
-    "code": "448830",
-    "dissentNoticeStartDate": "20251103",
-    "dissentNoticeEndDate": "20251117",
-    "appraisalRightStartDate": "20251118",
-    "appraisalRightEndDate": "20251208",
-    "tradingHaltStartDate": "20251218",
-    "tradingHaltEndDate": "20260113",
-    "newShareListingDate": "20260114",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251022000237"
-  },
-  {
-    "nameKr": "대신밸런스제18호스팩",
-    "code": "478780",
-    "dissentNoticeStartDate": "",
-    "dissentNoticeEndDate": "",
-    "appraisalRightStartDate": "20251120",
-    "appraisalRightEndDate": "20251210",
-    "tradingHaltStartDate": "",
-    "tradingHaltEndDate": "",
-    "newShareListingDate": "20260114",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251002000243&dcmNo=10834248"
-  },
-  {
     "nameKr": "비엔케이제2호스팩",
     "code": "473370",
     "dissentNoticeStartDate": "20260123",
