@@ -2,6 +2,7 @@
   {
     "nameKr": "비엔케이제2호스팩",
     "code": "473370",
+    "target": "보원케미칼",
     "dissentNoticeStartDate": "20260123",
     "dissentNoticeEndDate": "20260206",
     "appraisalRightStartDate": "20260209",
