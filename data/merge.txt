@@ -16,14 +16,14 @@
     "nameKr": "엔에이치스팩30호",
     "code": "466910",
     "target": "케이피항공산업",
-    "dissentNoticeStartDate": "20260305",
-    "dissentNoticeEndDate": "20260319",
-    "appraisalRightStartDate": "20260320",
-    "appraisalRightEndDate": "20260409",
-    "tradingHaltStartDate": "20260417",
-    "tradingHaltEndDate": "20260511",
-    "newShareListingDate": "20260512",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260130000218"
+    "dissentNoticeStartDate": "20260309",
+    "dissentNoticeEndDate": "20260323",
+    "appraisalRightStartDate": "20260324",
+    "appraisalRightEndDate": "20260413",
+    "tradingHaltStartDate": "20260423",
+    "tradingHaltEndDate": "20260518",
+    "newShareListingDate": "20260519",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260223001426"
   },
   {
     "nameKr": "엔에이치스팩29호",
