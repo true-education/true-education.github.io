@@ -29,13 +29,13 @@
     "nameKr": "엔에이치스팩29호",
     "code": "451700",
     "target": "세미티에스",
-    "dissentNoticeStartDate": "20260224",
-    "dissentNoticeEndDate": "20260310",
-    "appraisalRightStartDate": "20260311",
-    "appraisalRightEndDate": "20260401",
-    "tradingHaltStartDate": "20260410",
-    "tradingHaltEndDate": "20260424",
-    "newShareListingDate": "20260427",
+    "dissentNoticeStartDate": "20260402",
+    "dissentNoticeEndDate": "20260416",
+    "appraisalRightStartDate": "20260417",
+    "appraisalRightEndDate": "20260507",
+    "tradingHaltStartDate": "20260516",
+    "tradingHaltEndDate": "20260604",
+    "newShareListingDate": "20260605",
     "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114001986"
   }
 ]
