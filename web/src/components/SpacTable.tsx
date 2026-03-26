@@ -87,7 +87,14 @@ export default function SpacTable({ items, stockMap }: Props) {
                   style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb', borderTop: '1px solid #f3f4f6' }}>
                   <td style={{ padding: '10px 12px', fontWeight: 500 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span>{item.name}</span>
+                      <a
+                        href={`https://finance.naver.com/item/main.naver?code=${item.code}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'inherit', textDecoration: 'none' }}
+                        onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+                        onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
+                      >{item.name}</a>
                       {stockMap.get(item.code)?.halt && (
                         <span style={{
                           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
