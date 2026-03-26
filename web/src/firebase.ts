@@ -2,11 +2,10 @@ import { initializeApp } from 'firebase/app'
 import { getDatabase, ref, get } from 'firebase/database'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBkGEUFFFpcjOFW020ocrDJb2IL3dWXcqk',
-  projectId: 'true-project-9bd97',
-  databaseURL: 'https://true-project-9bd97-default-rtdb.asia-southeast1.firebasedatabase.app',
-  storageBucket: 'true-project-9bd97.appspot.com',
-  appId: '1:581599038344:android:b93f44c85aff021025483d',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
 const app = initializeApp(firebaseConfig)
