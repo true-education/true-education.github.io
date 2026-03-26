@@ -23,9 +23,12 @@ try {
 
 export interface StockInfo {
   code: string
-  name: string
-  market: string     // KOSPI / KOSDAQ
-  sector?: string
+  nameKr: string
+  market: string
+  prevPrice: string
+  halt: boolean
+  designated: boolean
+  spac: boolean
   [key: string]: unknown
 }
 

@@ -95,7 +95,25 @@ export default function SpacTable({ items, stockMap, priceMap, isPriceToday, pri
               return (
                 <tr key={item.code}
                   style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb', borderTop: '1px solid #f3f4f6' }}>
-                  <td style={{ padding: '10px 12px', fontWeight: 500 }}>{item.name}</td>
+                  <td style={{ padding: '10px 12px', fontWeight: 500 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span>{item.name}</span>
+                      {stockMap.get(item.code)?.halt && (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          width: 14, height: 14, fontSize: 9, fontWeight: 700,
+                          background: '#BA1A1A', color: '#fff', flexShrink: 0,
+                        }}>정</span>
+                      )}
+                      {stockMap.get(item.code)?.designated && (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          width: 14, height: 14, fontSize: 9, fontWeight: 700,
+                          background: '#F57C00', color: '#fff', flexShrink: 0,
+                        }}>관</span>
+                      )}
+                    </div>
+                  </td>
                   <td style={{ padding: '10px 12px', color: '#6b7280', fontFamily: 'monospace' }}>{item.code}</td>
                   <td style={{ padding: '10px 12px' }}>
                     <span style={{ ...st, padding: '2px 8px', borderRadius: 99, fontSize: 12, fontWeight: 600 }}>
