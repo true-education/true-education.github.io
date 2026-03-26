@@ -48,15 +48,7 @@ export default function RefundList({ items }: Props) {
             {/* 종목명 + 코드 */}
             <div style={{ flex: 1, minWidth: 160 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <a
-                  href={`https://finance.naver.com/item/main.naver?code=${item.code}`}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{ fontWeight: 700, fontSize: 15, color: 'inherit', textDecoration: 'none' }}
-                  onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-                  onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
-                >
-                  {item.nameKr}
-                </a>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>{item.nameKr}</span>
                 {item.fixed && (
                   <span style={{ padding: '1px 7px', borderRadius: 99, fontSize: 11, fontWeight: 600,
                     background: '#ede9fe', color: '#6d28d9' }}>확정</span>
