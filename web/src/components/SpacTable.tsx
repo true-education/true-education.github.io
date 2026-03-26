@@ -26,6 +26,52 @@ const STATUS_STYLE: Record<string, { background: string; color: string }> = {
 
 type SortKey = 'name' | 'redemptionPrice' | 'listingDate' | 'prevPrice'
 
+// OHLCV 툴팁 컴포넌트
+function PriceCell({ price, liveInfo }: {
+  price: number
+  liveInfo?: { open: string; high: string; low: string; previousClosePrice: string; volume: string; priceChange: string; priceChangeRate: string }
+}) {
+  const [show, setShow] = useState(false)
+  const fmt = (s: string) => parseInt(s, 10).toLocaleString()
+  const change = liveInfo ? parseInt(liveInfo.priceChange, 10) : 0
+  const changeColor = change > 0 ? '#dc2626' : change < 0 ? '#2563eb' : '#6b7280'
+  const changeSign = change > 0 ? '+' : ''
+
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      <span style={{ fontWeight: 600, color: price > 0 ? '#1e293b' : '#9ca3af', cursor: liveInfo ? 'default' : undefined }}>
+        {price > 0 ? price.toLocaleString() + '원' : '-'}
+      </span>
+      {liveInfo && change !== 0 && (
+        <span style={{ marginLeft: 4, fontSize: 11, color: changeColor }}>
+          {changeSign}{change.toLocaleString()}
+        </span>
+      )}
+      {show && liveInfo && (
+        <div style={{
+          position: 'absolute', right: 0, top: '100%', marginTop: 4, zIndex: 50,
+          background: '#1e293b', color: '#f8fafc', borderRadius: 8, padding: '10px 14px',
+          fontSize: 12, whiteSpace: 'nowrap', boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+          lineHeight: 1.8,
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'auto auto', columnGap: 12 }}>
+            <span style={{ color: '#94a3b8' }}>시가</span><span>{fmt(liveInfo.open)}</span>
+            <span style={{ color: '#94a3b8' }}>고가</span><span style={{ color: '#fca5a5' }}>{fmt(liveInfo.high)}</span>
+            <span style={{ color: '#94a3b8' }}>저가</span><span style={{ color: '#93c5fd' }}>{fmt(liveInfo.low)}</span>
+            <span style={{ color: '#94a3b8' }}>전일</span><span>{fmt(liveInfo.previousClosePrice)}</span>
+            <span style={{ color: '#94a3b8' }}>등락</span>
+            <span style={{ color: changeColor }}>{changeSign}{change.toLocaleString()} ({changeSign}{liveInfo.priceChangeRate}%)</span>
+            <span style={{ color: '#94a3b8' }}>거래량</span><span>{parseInt(liveInfo.volume, 10).toLocaleString()}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640)
   useEffect(() => {
@@ -176,12 +222,12 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
                     gap: '4px 0', fontSize: 12 }}>
                     <div style={{ color: '#9ca3af' }}>코드</div>
-                    <div style={{ color: '#9ca3af' }}>전일종가</div>
+                    <div style={{ color: '#9ca3af' }}>현재 가격</div>
                     <div style={{ color: '#9ca3af' }}>상장일</div>
 
                     <div style={{ fontFamily: 'monospace', color: '#6b7280' }}>{item.code}</div>
-                    <div style={{ fontWeight: 600, color: item.prevPrice > 0 ? '#1e293b' : '#9ca3af' }}>
-                      {item.prevPrice > 0 ? item.prevPrice.toLocaleString() : '-'}
+                    <div>
+                      <PriceCell price={item.prevPrice} liveInfo={priceMap?.get(item.code)} />
                     </div>
                     <div style={{ color: '#6b7280' }}>{item.listingDate}</div>
                   </div>
@@ -222,7 +268,7 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
                 <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>종목명</th>
                 <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>코드</th>
                 <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>상태</th>
-                <Th label="전일종가" k="prevPrice" />
+                <Th label="현재 가격" k="prevPrice" />
                 <Th label="상장일" k="listingDate" />
                 <Th label="예상 청산가" k="redemptionPrice" />
                 <th style={{ padding: '10px 12px', textAlign: 'center', color: '#374151', fontSize: 13 }}>전자공시</th>
@@ -243,9 +289,8 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
                         {STATUS_LABEL[item.status] ?? item.status}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'right',
-                      fontWeight: 600, color: item.prevPrice > 0 ? '#1e293b' : '#9ca3af' }}>
-                      {item.prevPrice > 0 ? item.prevPrice.toLocaleString() + '원' : '-'}
+                    <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                      <PriceCell price={item.prevPrice} liveInfo={priceMap?.get(item.code)} />
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.listingDate}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'right' }}>
