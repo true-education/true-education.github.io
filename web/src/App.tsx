@@ -9,8 +9,9 @@ import SpacTable from './components/SpacTable'
 import type { FounderEntry } from './components/FoundersPopup'
 import MergeTimeline from './components/MergeTimeline'
 import SummaryCards from './components/SummaryCards'
+import RefundList from './components/RefundList'
 
-type Tab = 'list' | 'merge'
+type Tab = 'list' | 'merge' | 'refund'
 type Filter = 'ALL' | SpacStatus
 
 export default function App() {
@@ -125,7 +126,7 @@ export default function App() {
 
       {/* 탭 */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, borderBottom: '1px solid #e5e7eb' }}>
-        {(['list', 'merge'] as Tab[]).map(t => (
+        {(['list', 'merge', 'refund'] as Tab[]).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -140,7 +141,9 @@ export default function App() {
               marginBottom: -1,
             }}
           >
-            {t === 'list' ? `전체 목록 (${spacList.length})` : `합병 진행 (${mergeList.length})`}
+            {t === 'list' ? `전체 목록 (${spacList.length})`
+              : t === 'merge' ? `합병 진행 (${mergeList.length})`
+              : `청산 예정 (${refundMap.size})`}
           </button>
         ))}
       </div>
@@ -155,6 +158,7 @@ export default function App() {
         />
       )}
       {tab === 'merge' && <MergeTimeline items={mergeList} spacList={spacList} />}
+      {tab === 'refund' && <RefundList items={Array.from(refundMap.values())} />}
 
       {/* 푸터 */}
       <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
