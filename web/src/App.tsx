@@ -68,7 +68,7 @@ export default function App() {
           </p>
         </div>
         <div style={{ textAlign: 'right', fontSize: 12, color: '#9ca3af', lineHeight: 1.6 }}>
-          {lastUpdatedStr && <div>종가 기준일: {lastUpdatedStr}</div>}
+          {lastUpdatedStr && <div>가격 기준 시간: {lastUpdatedStr}</div>}
           <div>
             build {__BUILD_DATE__} ({__BUILD_HASH__})
           </div>
