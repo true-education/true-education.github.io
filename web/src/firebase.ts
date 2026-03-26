@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getDatabase, ref, get } from 'firebase/database'
+import { getDatabase, ref, get, onValue, off } from 'firebase/database'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -52,4 +52,34 @@ export async function fetchLastUpdatedAt(): Promise<number> {
   const metaRef = ref(db, 'meta/stockLastUpdatedAt')
   const snapshot = await get(metaRef)
   return snapshot.val() ?? 0
+}
+
+export interface SpacPriceInfo {
+  price: string
+  priceChange: string
+  priceChangeRate: string
+  high: string
+  low: string
+  open: string
+  previousClosePrice: string
+  volume: string
+}
+
+export type SpacPriceMap = Map<string, SpacPriceInfo>
+
+export function subscribeSpacPrices(
+  callback: (priceMap: SpacPriceMap) => void
+): () => void {
+  if (!db) return () => {}
+  const priceRef = ref(db, 'spac/price')
+  const handler = onValue(priceRef, snapshot => {
+    const val = snapshot.val()
+    if (!val) return callback(new Map())
+    const result = new Map<string, SpacPriceInfo>()
+    for (const [code, info] of Object.entries(val)) {
+      result.set(code, info as SpacPriceInfo)
+    }
+    callback(result)
+  })
+  return () => off(priceRef, 'value', handler)
 }
