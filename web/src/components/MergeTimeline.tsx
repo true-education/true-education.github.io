@@ -48,14 +48,11 @@ export default function MergeTimeline({ items, spacList }: Props) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontWeight: 700, fontSize: 16 }}>{item.nameKr}</span>
                   <span style={{ fontSize: 13, color: '#6b7280', fontFamily: 'monospace' }}>{item.code}</span>
-                  {spac && (
+                  {spac?.status === 'MERGE_REVIEW' && (
                     <span style={{
                       padding: '2px 8px', borderRadius: 99, fontSize: 12, fontWeight: 600,
-                      background: spac.status === 'MERGE_APPROVED' ? '#dbeafe' : '#fef9c3',
-                      color: spac.status === 'MERGE_APPROVED' ? '#1e40af' : '#854d0e',
-                    }}>
-                      {spac.status === 'MERGE_APPROVED' ? '합병승인' : '합병심사'}
-                    </span>
+                      background: '#fef9c3', color: '#854d0e',
+                    }}>합병심사</span>
                   )}
                 </div>
                 <div style={{ marginTop: 4, fontSize: 14, color: '#374151' }}>
