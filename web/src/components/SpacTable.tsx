@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import type { SpacItem } from '../types'
-import type { StockInfo } from '../firebase'
+import type { StockInfo, RefundInfo } from '../api'
 import RedemptionPopup from './RedemptionPopup'
 import FoundersPopup, { type FounderEntry } from './FoundersPopup'
 
 interface Props {
   items: SpacItem[]
   stockMap: Map<string, StockInfo>
+  refundMap?: Map<string, RefundInfo>
   foundersMap?: Map<string, FounderEntry>
 }
 
@@ -33,7 +34,7 @@ function useIsMobile() {
   return isMobile
 }
 
-export default function SpacTable({ items, stockMap, foundersMap }: Props) {
+export default function SpacTable({ items, stockMap, refundMap, foundersMap }: Props) {
   const isMobile = useIsMobile()
   const [sortKey, setSortKey] = useState<SortKey>('listingDate')
   const [sortAsc, setSortAsc] = useState(true)
@@ -48,8 +49,11 @@ export default function SpacTable({ items, stockMap, foundersMap }: Props) {
 
   const withPrice = items.map(item => {
     const stock = stockMap.get(item.code)
-    const prevPrice = stock ? parseInt(stock.prevPrice as string, 10) : 0
-    return { ...item, prevPrice }
+    const prevPrice = stock ? (typeof stock.prevPrice === 'number' ? stock.prevPrice : parseInt(String(stock.prevPrice), 10)) : 0
+    // refundMap에 있으면 해당 값 우선, 없으면 계산값 사용
+    const refund = refundMap?.get(item.code)
+    const redemptionPrice = refund ? Math.round(refund.refundAmount) : item.redemptionPrice
+    return { ...item, prevPrice, redemptionPrice }
   })
 
   const sorted = [...withPrice]

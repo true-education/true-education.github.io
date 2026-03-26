@@ -3,6 +3,44 @@ import type { FounderEntry } from './components/FoundersPopup'
 
 const BASE = 'https://true-education.github.io/data'
 
+// ── 로컬 파일 기반 stocks / refund ──────────────────────────────────────────
+
+export interface StockInfo {
+  code: string
+  nameKr: string
+  prevPrice: number
+  halt: boolean
+  designated: boolean
+}
+
+export interface RefundInfo {
+  code: string
+  nameKr: string
+  refundAmount: number
+  date: string
+  fixed: boolean
+}
+
+export async function fetchStocksLocal(): Promise<Map<string, StockInfo>> {
+  try {
+    const res = await fetch(`${BASE}/stocks.json?_=${Date.now()}`)
+    const data: Record<string, StockInfo> = await res.json()
+    return new Map(Object.entries(data))
+  } catch {
+    return new Map()
+  }
+}
+
+export async function fetchRefundLocal(): Promise<Map<string, RefundInfo>> {
+  try {
+    const res = await fetch(`${BASE}/refund.json?_=${Date.now()}`)
+    const data: Record<string, RefundInfo> = await res.json()
+    return new Map(Object.entries(data))
+  } catch {
+    return new Map()
+  }
+}
+
 function parseDate(s: string): string {
   if (s.length === 8) return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`
   return s

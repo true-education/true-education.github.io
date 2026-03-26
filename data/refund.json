@@ -1,0 +1,58 @@
+{
+  "450050": {
+    "code": "450050",
+    "nameKr": "하이제8호스팩",
+    "refundAmount": 2157.89,
+    "date": "20260428",
+    "fixed": false
+  },
+  "454640": {
+    "code": "454640",
+    "nameKr": "하나29호스팩",
+    "refundAmount": 2151.48,
+    "date": "20260512",
+    "fixed": false
+  },
+  "456490": {
+    "code": "456490",
+    "nameKr": "교보14호스팩",
+    "refundAmount": 2160.3,
+    "date": "20260518",
+    "fixed": false
+  },
+  "455250": {
+    "code": "455250",
+    "nameKr": "KB제25호스팩",
+    "refundAmount": 2153.8,
+    "date": "20260529",
+    "fixed": false
+  },
+  "446150": {
+    "code": "446150",
+    "nameKr": "유안타제12호스팩",
+    "refundAmount": 2186.8,
+    "date": "20260529",
+    "fixed": false
+  },
+  "455910": {
+    "code": "455910",
+    "nameKr": "에스케이증권제9호스팩",
+    "refundAmount": 2157.5,
+    "date": "20260624",
+    "fixed": false
+  },
+  "450940": {
+    "code": "450940",
+    "nameKr": "유안타제14호스팩",
+    "refundAmount": 2157.5,
+    "date": "20260624",
+    "fixed": false
+  },
+  "457940": {
+    "code": "457940",
+    "nameKr": "에스케이증권제10호스팩",
+    "refundAmount": 2155.9,
+    "date": "20260707",
+    "fixed": false
+  }
+}
