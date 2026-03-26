@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { SpacItem } from '../types'
 import type { StockInfo } from '../firebase'
+import RedemptionPopup from './RedemptionPopup'
 
 interface Props {
   items: SpacItem[]
@@ -24,6 +25,7 @@ export default function SpacTable({ items, stockMap }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('listingDate')
   const [sortAsc, setSortAsc] = useState(true)
   const [search, setSearch] = useState('')
+  const [popupItem, setPopupItem] = useState<SpacItem | null>(null)
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortAsc(a => !a)
@@ -122,9 +124,17 @@ export default function SpacTable({ items, stockMap }: Props) {
                     {item.prevPrice > 0 ? item.prevPrice.toLocaleString() + '원' : '-'}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.listingDate}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right',
-                    fontWeight: 600, color: item.redemptionPrice ? '#059669' : '#9ca3af' }}>
-                    {item.redemptionPrice ? item.redemptionPrice.toLocaleString() + '원' : '-'}
+                  <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                    {item.redemptionPrice ? (
+                      <button
+                        onClick={() => setPopupItem(item)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer',
+                          fontWeight: 600, color: '#059669', fontSize: 13, padding: 0,
+                          textDecoration: 'underline dotted' }}
+                      >
+                        {item.redemptionPrice.toLocaleString()}원
+                      </button>
+                    ) : <span style={{ color: '#9ca3af' }}>-</span>}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <a
@@ -147,6 +157,10 @@ export default function SpacTable({ items, stockMap }: Props) {
         )}
       </div>
       <div style={{ marginTop: 8, color: '#9ca3af', fontSize: 12 }}>{sorted.length}개 종목</div>
+
+      {popupItem && (
+        <RedemptionPopup item={popupItem} onClose={() => setPopupItem(null)} />
+      )}
     </div>
   )
 }
