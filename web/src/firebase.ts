@@ -29,7 +29,10 @@ export async function fetchStocks(): Promise<Map<string, StockInfo>> {
   const result = new Map<string, StockInfo>()
   const items = val['kosdaq'] ?? {}
   for (const [code, info] of Object.entries(items)) {
-    result.set(code, { ...(info as object), code, market: 'KOSDAQ' } as StockInfo)
+    const stock = info as StockInfo
+    if (stock.spac) {
+      result.set(code, { ...stock, code, market: 'KOSDAQ' })
+    }
   }
   return result
 }
