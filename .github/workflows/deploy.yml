@@ -26,16 +26,14 @@ jobs:
         run: npm ci
         working-directory: web
 
-      - name: Create .env from secret
-        run: |
-          printf '%s' "$GOOGLE_SERVICES" > web/.env
-          cat web/.env
-        env:
-          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
-
       - name: Build
         run: npm run build
         working-directory: web
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_DATABASE_URL: ${{ secrets.VITE_FIREBASE_DATABASE_URL }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
       - name: Copy data folder to dist
         run: cp -r data web/dist/data
