@@ -27,11 +27,9 @@ export async function fetchStocks(): Promise<Map<string, StockInfo>> {
   if (!val) return new Map()
 
   const result = new Map<string, StockInfo>()
-  for (const market of ['kospi', 'kosdaq']) {
-    const items = val[market] ?? {}
-    for (const [code, info] of Object.entries(items)) {
-      result.set(code, { ...(info as object), code, market: market.toUpperCase() } as StockInfo)
-    }
+  const items = val['kosdaq'] ?? {}
+  for (const [code, info] of Object.entries(items)) {
+    result.set(code, { ...(info as object), code, market: 'KOSDAQ' } as StockInfo)
   }
   return result
 }
