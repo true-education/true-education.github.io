@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'web/**'
+      - 'ads.txt'
       - '.github/workflows/deploy.yml'
 
 permissions:
@@ -37,6 +38,9 @@ jobs:
 
       - name: Copy data folder to dist
         run: cp -r data web/dist/data
+
+      - name: Copy ads.txt to dist
+        run: cp ads.txt web/dist/ads.txt
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
