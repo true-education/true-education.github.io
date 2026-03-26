@@ -20,7 +20,7 @@ export default function App() {
   const [stockMap, setStockMap] = useState<Map<string, StockInfo>>(new Map())
   const [refundMap, setRefundMap] = useState<Map<string, RefundInfo>>(new Map())
   const [foundersMap, setFoundersMap] = useState<Map<string, FounderEntry>>(new Map())
-  const [_priceMap, setPriceMap] = useState<SpacPriceMap>(new Map())
+  const [priceMap, setPriceMap] = useState<SpacPriceMap>(new Map())
 
   const [priceLastUpdatedAt, setPriceLastUpdatedAt] = useState<number>(0)
   const [priceAvailable, setPriceAvailable] = useState<boolean | null>(null)
@@ -153,6 +153,7 @@ export default function App() {
         <SpacTable
           items={filtered}
           stockMap={stockMap}
+          priceMap={priceMap}
           refundMap={refundMap}
           foundersMap={foundersMap}
         />

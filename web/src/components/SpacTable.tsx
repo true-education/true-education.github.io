@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { SpacItem } from '../types'
-import type { StockInfo } from '../firebase'
+import type { StockInfo, SpacPriceMap } from '../firebase'
 import type { RefundInfo } from '../api'
 import RedemptionPopup from './RedemptionPopup'
 import FoundersPopup, { type FounderEntry } from './FoundersPopup'
@@ -8,6 +8,7 @@ import FoundersPopup, { type FounderEntry } from './FoundersPopup'
 interface Props {
   items: SpacItem[]
   stockMap: Map<string, StockInfo>
+  priceMap?: SpacPriceMap
   refundMap?: Map<string, RefundInfo>
   foundersMap?: Map<string, FounderEntry>
 }
@@ -35,7 +36,7 @@ function useIsMobile() {
   return isMobile
 }
 
-export default function SpacTable({ items, stockMap, refundMap, foundersMap }: Props) {
+export default function SpacTable({ items, stockMap, priceMap, refundMap, foundersMap }: Props) {
   const isMobile = useIsMobile()
   const [sortKey, setSortKey] = useState<SortKey>('listingDate')
   const [sortAsc, setSortAsc] = useState(true)
@@ -50,7 +51,10 @@ export default function SpacTable({ items, stockMap, refundMap, foundersMap }: P
 
   const withPrice = items.map(item => {
     const stock = stockMap.get(item.code)
-    const prevPrice = stock ? parseInt(stock.prevPrice as string, 10) : 0
+    const stockPrice = stock ? parseInt(stock.prevPrice as string, 10) : 0
+    // spac/price 실시간 가격 우선, 없으면 stocks 전일종가
+    const livePrice = priceMap?.get(item.code)
+    const prevPrice = livePrice ? parseInt(livePrice.price, 10) : stockPrice
     // refundMap에 있으면 해당 값 우선, 없으면 계산값 사용
     const refund = refundMap?.get(item.code)
     const redemptionPrice = refund ? Math.round(refund.refundAmount) : item.redemptionPrice
