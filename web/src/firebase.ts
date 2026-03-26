@@ -10,8 +10,12 @@ const firebaseConfig = {
 
 let db: ReturnType<typeof getDatabase> | null = null
 try {
-  const app = initializeApp(firebaseConfig)
-  db = getDatabase(app)
+  if (!firebaseConfig.apiKey || !firebaseConfig.databaseURL) {
+    console.warn('Firebase config missing:', firebaseConfig)
+  } else {
+    const app = initializeApp(firebaseConfig)
+    db = getDatabase(app)
+  }
 } catch (e) {
   console.error('Firebase init failed:', e)
 }

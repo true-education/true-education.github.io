@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 import { fetchSpacList, fetchMergeList } from './api'
 import { fetchStocks, fetchLastUpdatedAt } from './firebase'
 import type { StockInfo } from './firebase'
@@ -113,12 +114,9 @@ export default function App() {
           padding: '20px 32px', borderRadius: 12, border: '1px solid #e5e7eb', background: '#fff' }}>
           {/* QR 코드 */}
           <div style={{ textAlign: 'center' }}>
-            <img
-              src={`https://chart.googleapis.com/chart?chs=120x120&cht=qr&chl=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.trueedu.spac')}&choe=UTF-8`}
-              alt="QR Code"
-              width={120}
-              height={120}
-              style={{ display: 'block', borderRadius: 4 }}
+            <QRCodeSVG
+              value="https://play.google.com/store/apps/details?id=com.trueedu.spac"
+              size={120}
             />
             <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>QR 스캔</p>
           </div>
