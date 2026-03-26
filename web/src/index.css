@@ -1,0 +1,5 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #f8fafc; color: #1e293b; }
+button { font-family: inherit; }
+input { font-family: inherit; outline: none; }
+input:focus { border-color: #2563eb !important; box-shadow: 0 0 0 2px #bfdbfe; }
