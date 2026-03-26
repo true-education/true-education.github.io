@@ -106,22 +106,42 @@ export default function App() {
 
       {/* 푸터 */}
       <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
-        <p style={{ fontSize: 13, color: '#9ca3af', marginBottom: 12 }}>
+        <p style={{ fontSize: 13, color: '#9ca3af', marginBottom: 20 }}>
           더 많은 기능은 앱에서 확인하세요
         </p>
-        <a
-          href="https://play.google.com/store/apps/details?id=com.trueedu.spac"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '10px 20px', borderRadius: 8, textDecoration: 'none',
-            background: '#000', color: '#fff', fontSize: 14, fontWeight: 500 }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3.18 23.76c.32.18.68.22 1.04.12l11.8-6.8-2.48-2.48-10.36 9.16zM20.44 10.2L17.5 8.54l-2.82 2.82 2.82 2.82 2.96-1.7c.84-.48.84-1.8-.02-2.28zM4.22.12C3.86.02 3.5.06 3.18.24L13.56 10.6l2.48-2.48L4.22.12zM3 1.42v21.16l10.34-10.58L3 1.42z"/>
-          </svg>
-          Google Play에서 다운로드
-        </a>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 32,
+          padding: '20px 32px', borderRadius: 12, border: '1px solid #e5e7eb', background: '#fff' }}>
+          {/* QR 코드 */}
+          <div style={{ textAlign: 'center' }}>
+            <img
+              src={`https://chart.googleapis.com/chart?chs=120x120&cht=qr&chl=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.trueedu.spac')}&choe=UTF-8`}
+              alt="QR Code"
+              width={120}
+              height={120}
+              style={{ display: 'block', borderRadius: 4 }}
+            />
+            <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>QR 스캔</p>
+          </div>
+          {/* 다운로드 버튼 */}
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 12 }}>
+              SPAC 앱 다운로드
+            </p>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.trueedu.spac"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '10px 20px', borderRadius: 8, textDecoration: 'none',
+                background: '#000', color: '#fff', fontSize: 14, fontWeight: 500 }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3.18 23.76c.32.18.68.22 1.04.12l11.8-6.8-2.48-2.48-10.36 9.16zM20.44 10.2L17.5 8.54l-2.82 2.82 2.82 2.82 2.96-1.7c.84-.48.84-1.8-.02-2.28zM4.22.12C3.86.02 3.5.06 3.18.24L13.56 10.6l2.48-2.48L4.22.12zM3 1.42v21.16l10.34-10.58L3 1.42z"/>
+              </svg>
+              Google Play
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )
