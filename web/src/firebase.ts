@@ -14,7 +14,8 @@ try {
     console.warn('Firebase config missing:', firebaseConfig)
   } else {
     const app = initializeApp(firebaseConfig)
-    db = getDatabase(app)
+    // 리전 URL 명시적으로 전달
+    db = getDatabase(app, firebaseConfig.databaseURL)
   }
 } catch (e) {
   console.error('Firebase init failed:', e)
