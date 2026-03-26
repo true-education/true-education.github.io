@@ -15,7 +15,8 @@ export default function App() {
   const [spacList, setSpacList] = useState<SpacItem[]>([])
   const [mergeList, setMergeList] = useState<MergeItem[]>([])
   const [stockMap, setStockMap] = useState<Map<string, StockInfo>>(new Map())
-  const [priceMap, setPriceMap] = useState<SpacPriceMap>(new Map())
+  const [_priceMap, setPriceMap] = useState<SpacPriceMap>(new Map())
+
   const [priceLastUpdatedAt, setPriceLastUpdatedAt] = useState<number>(0)
   // null = 아직 응답 없음(로딩), 0 = 데이터 없음, >0 = 실제 값
   const [priceAvailable, setPriceAvailable] = useState<boolean | null>(null)
@@ -143,7 +144,7 @@ export default function App() {
       </div>
 
       {/* 컨텐츠 */}
-      {tab === 'list' && <SpacTable items={filtered} stockMap={stockMap} priceMap={priceMap} isPriceToday={isPriceToday} priceAvailable={priceAvailable ?? false} />}
+      {tab === 'list' && <SpacTable items={filtered} stockMap={stockMap} />}
       {tab === 'merge' && <MergeTimeline items={mergeList} spacList={spacList} />}
 
       {/* 푸터 */}

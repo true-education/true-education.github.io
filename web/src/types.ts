@@ -9,7 +9,8 @@ export interface SpacItem {
   rate3: number
   expireDate: string    // YYYY-MM-DD
   status: SpacStatus
-  daysLeft: number      // 청산까지 남은 일수
+  daysLeft: number
+  redemptionPrice: number | null  // 예상 청산가 (NORMAL만)
 }
 
 export interface MergeItem {

@@ -14,6 +14,40 @@ function daysLeft(expireDate: string): number {
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
+/**
+ * 예상 청산가 계산 (spac 앱 SpacRefund.settlementAmount() 동일 로직)
+ * - 공모가 2000원 고정
+ * - 이자 소득세 15.4%, 신탁사 수수료 0.1%
+ * - 3년차는 일할 계산
+ */
+function calcRedemptionPrice(
+  r1: number, r2: number, r3: number,
+  listingDate: string, expireDate: string
+): number {
+  const INCOME_TAX = 0.154
+  const TRUST_FEE  = 0.001
+  let p = 2000.0
+
+  // 1년차
+  const i1 = p * r1
+  p = p + i1 - i1 * INCOME_TAX - p * TRUST_FEE
+
+  // 2년차
+  const i2 = p * r2
+  p = p + i2 - i2 * INCOME_TAX - p * TRUST_FEE
+
+  // 3년차 일할
+  const listing = new Date(listingDate).getTime()
+  const expire  = new Date(expireDate).getTime()
+  const totalDays = (expire - listing) / (1000 * 60 * 60 * 24)
+  const remainingDays = totalDays - 730
+  const ratio = remainingDays / 365.0
+  const i3 = p * r3 * ratio
+  p = p + i3 - i3 * INCOME_TAX - p * TRUST_FEE * ratio
+
+  return Math.round(p)
+}
+
 export async function fetchSpacList(): Promise<SpacItem[]> {
   const res = await fetch(`${BASE}/v1.txt?_=${Date.now()}`)
   const text = await res.text()
@@ -21,17 +55,23 @@ export async function fetchSpacList(): Promise<SpacItem[]> {
     .split('\n')
     .filter(line => line.trim())
     .map(line => {
-      const [listingDate, code, name, r1, r2, r3, expireDate, status] = line.split('\t')
+      const [listingDate, code, name, r1s, r2s, r3s, expireDate, status] = line.split('\t')
+      const r1 = parseFloat(r1s), r2 = parseFloat(r2s), r3 = parseFloat(r3s)
+      const st = status?.trim() as SpacStatus
+      const redemptionPrice = st === 'NORMAL' && r1 > 0 && r2 > 0 && r3 > 0
+        ? calcRedemptionPrice(r1, r2, r3, listingDate, expireDate)
+        : null
       return {
         listingDate,
         code,
         name,
-        rate1: parseFloat(r1),
-        rate2: parseFloat(r2),
-        rate3: parseFloat(r3),
+        rate1: r1,
+        rate2: r2,
+        rate3: r3,
         expireDate,
-        status: status?.trim() as SpacStatus,
+        status: st,
         daysLeft: daysLeft(expireDate),
+        redemptionPrice,
       }
     })
 }
