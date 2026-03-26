@@ -71,7 +71,7 @@ export default function SpacTable({ items, stockMap }: Props) {
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>종목명</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>코드</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>상태</th>
-              <Th label="현재가" k="prevPrice" />
+              <Th label="전일종가" k="prevPrice" />
               <Th label="상장일" k="listingDate" />
               <Th label="청산예정일" k="daysLeft" />
               <Th label="D-day" k="daysLeft" />

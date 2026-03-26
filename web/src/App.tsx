@@ -68,7 +68,7 @@ export default function App() {
         </div>
         {lastUpdatedStr && (
           <div style={{ fontSize: 12, color: '#9ca3af' }}>
-            시세 업데이트: {lastUpdatedStr}
+            종가 기준일: {lastUpdatedStr}
           </div>
         )}
       </div>
