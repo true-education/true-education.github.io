@@ -5,7 +5,6 @@ import type { StockInfo } from '../firebase'
 interface Props {
   items: SpacItem[]
   stockMap: Map<string, StockInfo>
-  dartCodeMap: Map<string, string>
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -21,7 +20,7 @@ const STATUS_STYLE: Record<string, { background: string; color: string }> = {
 
 type SortKey = 'name' | 'rate1' | 'rate2' | 'rate3' | 'listingDate' | 'prevPrice'
 
-export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
+export default function SpacTable({ items, stockMap }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('listingDate')
   const [sortAsc, setSortAsc] = useState(true)
   const [search, setSearch] = useState('')
