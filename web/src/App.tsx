@@ -40,18 +40,14 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const unsubscribe = subscribeSpacPrices((map, updatedAt) => {
-      const hasData = map.size > 0
+    const unsubscribe = subscribeSpacPrices(map => {
       setPriceMap(map)
-      setPriceAvailable(hasData)
-      // /spac/price 내에 lastUpdatedAt 이 있으면 사용
-      if (updatedAt > 0) setPriceLastUpdatedAt(updatedAt)
+      setPriceAvailable(map.size > 0)
     })
     return unsubscribe
   }, [])
 
   useEffect(() => {
-    // meta/priceLastUpdatedAt 도 구독 (spac/price 내 필드 없는 경우 fallback)
     const unsubscribe = subscribePriceLastUpdatedAt(at => {
       if (at > 0) setPriceLastUpdatedAt(at)
     })
