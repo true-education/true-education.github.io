@@ -108,17 +108,15 @@ export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
                     {item.rate3 > 0 ? `${(item.rate3 * 100).toFixed(2)}%` : '-'}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                    {dartCodeMap.get(item.code) ? (
-                      <a
-                        href={`https://dart.fss.or.kr/corp/searchHistory.do?textCrpCik=${dartCodeMap.get(item.code)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: '#2563eb', fontSize: 13, textDecoration: 'none' }}
-                        title="DART 공시 보기"
-                      >
-                        📋
-                      </a>
-                    ) : '-'}
+                    <a
+                      href={`https://dart.fss.or.kr/dsab001/main.do?autoSearch=true&textCrpNM=${item.code}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#2563eb', fontSize: 13, textDecoration: 'none' }}
+                      title="DART 공시 보기"
+                    >
+                      📋
+                    </a>
                   </td>
                 </tr>
               )
