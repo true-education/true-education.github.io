@@ -13,6 +13,7 @@ interface StepResult {
   tax: number
   fee: number
   result: number
+  remainingDays?: number
 }
 
 function calcSteps(item: SpacItem): StepResult[] {
@@ -47,7 +48,7 @@ function calcSteps(item: SpacItem): StepResult[] {
   const t3 = i3 * INCOME_TAX
   const f3 = p * TRUST_FEE * ratio
   const r3 = p + i3 - t3 - f3
-  steps.push({ year: 3, rate: item.rate3, principal: p, interest: i3, tax: t3, fee: f3, result: r3, remainingDays })
+  steps.push({ year: 3, rate: item.rate3, principal: p, interest: i3, tax: t3, fee: f3, result: r3, remainingDays: remainingDays })
   p = r3
 
   return steps
@@ -93,7 +94,7 @@ export default function RedemptionPopup({ item, onClose }: Props) {
           <div key={s.year} style={{ border: '1px solid #e5e7eb', borderRadius: 8,
             padding: '10px 12px', marginBottom: 10, fontSize: 13 }}>
             <div style={{ fontWeight: 600, color: '#2563eb', marginBottom: 6 }}>
-              {s.year}년차 ({(s.rate * 100).toFixed(2)}%{(s as any).remainingDays ? ` × ${(s as any).remainingDays}일/365일` : ''})
+              {s.year}년차 ({(s.rate * 100).toFixed(2)}%{s.remainingDays ? ` × ${s.remainingDays}일/365일` : ''})
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px 8px', color: '#6b7280' }}>
               <span>원금</span><span style={{ textAlign: 'right' }}>{fmtW(s.principal)}</span>
