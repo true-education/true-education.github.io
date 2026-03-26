@@ -77,9 +77,6 @@ export default function RefundList({ items }: Props) {
               <div style={{ fontWeight: 700, fontSize: 18, color: '#059669', marginTop: 2 }}>
                 {Math.round(item.refundAmount).toLocaleString()}원
               </div>
-              <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 1 }}>
-                수익률 {((item.refundAmount - 2000) / 2000 * 100).toFixed(2)}%
-              </div>
             </div>
           </div>
         )
