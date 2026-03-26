@@ -19,10 +19,10 @@ const STATUS_STYLE: Record<string, { background: string; color: string }> = {
   MERGE_APPROVED: { background: '#dbeafe', color: '#1e40af' },
 }
 
-type SortKey = 'daysLeft' | 'name' | 'rate1' | 'rate2' | 'rate3' | 'listingDate' | 'prevPrice'
+type SortKey = 'name' | 'rate1' | 'rate2' | 'rate3' | 'listingDate' | 'prevPrice'
 
 export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
-  const [sortKey, setSortKey] = useState<SortKey>('daysLeft')
+  const [sortKey, setSortKey] = useState<SortKey>('listingDate')
   const [sortAsc, setSortAsc] = useState(true)
   const [search, setSearch] = useState('')
 
@@ -41,6 +41,7 @@ export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
     .filter(i => !search || i.name.includes(search) || i.code.includes(search))
     .sort((a, b) => {
       const v = sortKey === 'name' ? a.name.localeCompare(b.name)
+        : sortKey === 'listingDate' ? a.listingDate.localeCompare(b.listingDate)
         : sortKey === 'prevPrice' ? a.prevPrice - b.prevPrice
         : (a[sortKey as keyof typeof a] as number) - (b[sortKey as keyof typeof b] as number)
       return sortAsc ? v : -v
@@ -74,8 +75,6 @@ export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>상태</th>
               <Th label="전일종가" k="prevPrice" />
               <Th label="상장일" k="listingDate" />
-              <Th label="청산예정일" k="daysLeft" />
-              <Th label="D-day" k="daysLeft" />
               <Th label="1년차 %" k="rate1" />
               <Th label="2년차 %" k="rate2" />
               <Th label="3년차 %" k="rate3" />
@@ -85,7 +84,6 @@ export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
           <tbody>
             {sorted.map((item, i) => {
               const st = STATUS_STYLE[item.status] ?? { background: '#f3f4f6', color: '#374151' }
-              const urgent = item.daysLeft <= 90 && item.status === 'NORMAL'
               return (
                 <tr key={item.code}
                   style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb', borderTop: '1px solid #f3f4f6' }}>
@@ -101,12 +99,7 @@ export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
                     {item.prevPrice > 0 ? item.prevPrice.toLocaleString() + '원' : '-'}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.listingDate}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.expireDate}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right',
-                    color: urgent ? '#dc2626' : item.daysLeft <= 180 ? '#d97706' : '#374151',
-                    fontWeight: urgent ? 700 : 400 }}>
-                    D-{item.daysLeft}
-                  </td>
+
                   <td style={{ padding: '10px 12px', textAlign: 'right' }}>{(item.rate1 * 100).toFixed(2)}%</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right' }}>{(item.rate2 * 100).toFixed(2)}%</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right',
