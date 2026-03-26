@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { SpacItem } from '../types'
-import type { StockInfo, RefundInfo } from '../api'
+import type { StockInfo } from '../firebase'
+import type { RefundInfo } from '../api'
 import RedemptionPopup from './RedemptionPopup'
 import FoundersPopup, { type FounderEntry } from './FoundersPopup'
 
@@ -49,7 +50,7 @@ export default function SpacTable({ items, stockMap, refundMap, foundersMap }: P
 
   const withPrice = items.map(item => {
     const stock = stockMap.get(item.code)
-    const prevPrice = stock ? (typeof stock.prevPrice === 'number' ? stock.prevPrice : parseInt(String(stock.prevPrice), 10)) : 0
+    const prevPrice = stock ? parseInt(stock.prevPrice as string, 10) : 0
     // refundMap에 있으면 해당 값 우선, 없으면 계산값 사용
     const refund = refundMap?.get(item.code)
     const redemptionPrice = refund ? Math.round(refund.refundAmount) : item.redemptionPrice

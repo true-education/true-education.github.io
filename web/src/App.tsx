@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { fetchSpacList, fetchMergeList, fetchFounders, fetchStocksLocal, fetchRefundLocal } from './api'
-import type { StockInfo, RefundInfo } from './api'
+import { fetchSpacList, fetchMergeList, fetchFounders, fetchRefundLocal } from './api'
+import type { RefundInfo } from './api'
+import { fetchStocks, fetchLastUpdatedAt, subscribeSpacPrices, subscribePriceLastUpdatedAt } from './firebase'
+import type { StockInfo, SpacPriceMap } from './firebase'
 import type { SpacItem, MergeItem, SpacStatus } from './types'
 import SpacTable from './components/SpacTable'
 import type { FounderEntry } from './components/FoundersPopup'
@@ -17,6 +19,11 @@ export default function App() {
   const [stockMap, setStockMap] = useState<Map<string, StockInfo>>(new Map())
   const [refundMap, setRefundMap] = useState<Map<string, RefundInfo>>(new Map())
   const [foundersMap, setFoundersMap] = useState<Map<string, FounderEntry>>(new Map())
+  const [_priceMap, setPriceMap] = useState<SpacPriceMap>(new Map())
+
+  const [priceLastUpdatedAt, setPriceLastUpdatedAt] = useState<number>(0)
+  const [priceAvailable, setPriceAvailable] = useState<boolean | null>(null)
+  const [lastUpdated, setLastUpdated] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<Tab>('list')
   const [filter, setFilter] = useState<Filter>('ALL')
@@ -25,16 +32,33 @@ export default function App() {
     Promise.all([
       fetchSpacList(),
       fetchMergeList(),
-      fetchStocksLocal(),
+      fetchStocks(),
+      fetchLastUpdatedAt(),
       fetchRefundLocal(),
       fetchFounders(),
-    ]).then(([s, m, stocks, refund, founders]) => {
+    ]).then(([s, m, stocks, ts, refund, founders]) => {
       setSpacList(s)
       setMergeList(m)
       setStockMap(stocks)
+      setLastUpdated(ts)
       setRefundMap(refund)
       setFoundersMap(founders)
     }).finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = subscribeSpacPrices(map => {
+      setPriceMap(map)
+      setPriceAvailable(map.size > 0)
+    })
+    return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = subscribePriceLastUpdatedAt(at => {
+      if (at > 0) setPriceLastUpdatedAt(at)
+    })
+    return unsubscribe
   }, [])
 
   const filtered = filter === 'ALL' ? spacList : spacList.filter(s => s.status === filter)
@@ -45,6 +69,29 @@ export default function App() {
     review: spacList.filter(s => s.status === 'MERGE_REVIEW').length,
     approved: spacList.filter(s => s.status === 'MERGE_APPROVED').length,
   }
+
+  const lastUpdatedStr = lastUpdated
+    ? (() => {
+        const s = String(lastUpdated)
+        return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)} ${s.slice(8,10)}:${s.slice(10,12)}`
+      })()
+    : null
+
+  const priceLastUpdatedStr = priceLastUpdatedAt > 0
+    ? (() => {
+        const s = String(priceLastUpdatedAt)
+        return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)} ${s.slice(8,10)}:${s.slice(10,12)}`
+      })()
+    : null
+
+  const isPriceToday = priceLastUpdatedAt > 0
+    ? (() => {
+        const s = String(priceLastUpdatedAt)
+        const today = new Date()
+        const ymd = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`
+        return s.slice(0, 8) === ymd
+      })()
+    : false
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#666' }}>
@@ -63,6 +110,12 @@ export default function App() {
           </p>
         </div>
         <div style={{ textAlign: 'right', fontSize: 12, color: '#9ca3af', lineHeight: 1.6 }}>
+          {priceLastUpdatedStr
+            ? <div>가격 기준 시간: {priceLastUpdatedStr}{!isPriceToday && ' (전일 종가)'}</div>
+            : priceAvailable === false
+              ? <div>가격 기준 시간: — (전일 종가)</div>
+              : lastUpdatedStr && <div>가격 기준 시간: {lastUpdatedStr}</div>
+          }
           <div>build {__BUILD_DATE__} ({__BUILD_HASH__})</div>
         </div>
       </div>

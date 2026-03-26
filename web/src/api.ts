@@ -3,15 +3,7 @@ import type { FounderEntry } from './components/FoundersPopup'
 
 const BASE = 'https://true-education.github.io/data'
 
-// ── 로컬 파일 기반 stocks / refund ──────────────────────────────────────────
-
-export interface StockInfo {
-  code: string
-  nameKr: string
-  prevPrice: number
-  halt: boolean
-  designated: boolean
-}
+// ── 로컬 파일 기반 refund ────────────────────────────────────────────────────
 
 export interface RefundInfo {
   code: string
@@ -19,16 +11,6 @@ export interface RefundInfo {
   refundAmount: number
   date: string
   fixed: boolean
-}
-
-export async function fetchStocksLocal(): Promise<Map<string, StockInfo>> {
-  try {
-    const res = await fetch(`${BASE}/stocks.json?_=${Date.now()}`)
-    const data: Record<string, StockInfo> = await res.json()
-    return new Map(Object.entries(data))
-  } catch {
-    return new Map()
-  }
 }
 
 export async function fetchRefundLocal(): Promise<Map<string, RefundInfo>> {
