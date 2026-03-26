@@ -6,6 +6,8 @@ interface Props {
   items: SpacItem[]
   stockMap: Map<string, StockInfo>
   priceMap: SpacPriceMap
+  isPriceToday: boolean
+  priceAvailable: boolean
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -21,7 +23,7 @@ const STATUS_STYLE: Record<string, { background: string; color: string }> = {
 
 type SortKey = 'name' | 'rate1' | 'rate2' | 'rate3' | 'listingDate' | 'prevPrice' | 'currentPrice'
 
-export default function SpacTable({ items, stockMap, priceMap }: Props) {
+export default function SpacTable({ items, stockMap, priceMap, isPriceToday, priceAvailable }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('listingDate')
   const [sortAsc, setSortAsc] = useState(true)
   const [search, setSearch] = useState('')
@@ -78,7 +80,7 @@ export default function SpacTable({ items, stockMap, priceMap }: Props) {
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>종목명</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>코드</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>상태</th>
-              <Th label="현재가" k="currentPrice" />
+              {(priceAvailable && isPriceToday) && <Th label="현재가" k="currentPrice" />}
               <Th label="전일종가" k="prevPrice" />
               <Th label="상장일" k="listingDate" />
               <Th label="1년차 %" k="rate1" />
@@ -100,20 +102,22 @@ export default function SpacTable({ items, stockMap, priceMap }: Props) {
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
                   </td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right' }}>
-                    {item.currentPrice > 0 ? (
-                      <span>
-                        <span style={{ fontWeight: 600, color: item.priceChange > 0 ? '#dc2626' : item.priceChange < 0 ? '#2563eb' : '#1e293b' }}>
-                          {item.currentPrice.toLocaleString()}원
-                        </span>
-                        {item.priceChange !== 0 && (
-                          <span style={{ fontSize: 11, marginLeft: 4, color: item.priceChange > 0 ? '#dc2626' : '#2563eb' }}>
-                            {item.priceChange > 0 ? '+' : ''}{item.priceChangeRate.toFixed(2)}%
+                  {(priceAvailable && isPriceToday) && (
+                    <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                      {item.currentPrice > 0 ? (
+                        <span>
+                          <span style={{ fontWeight: 600, color: item.priceChange > 0 ? '#dc2626' : item.priceChange < 0 ? '#2563eb' : '#1e293b' }}>
+                            {item.currentPrice.toLocaleString()}원
                           </span>
-                        )}
-                      </span>
-                    ) : <span style={{ color: '#9ca3af' }}>-</span>}
-                  </td>
+                          {item.priceChange !== 0 && (
+                            <span style={{ fontSize: 11, marginLeft: 4, color: item.priceChange > 0 ? '#dc2626' : '#2563eb' }}>
+                              {item.priceChange > 0 ? '+' : ''}{item.priceChangeRate.toFixed(2)}%
+                            </span>
+                          )}
+                        </span>
+                      ) : <span style={{ color: '#9ca3af' }}>-</span>}
+                    </td>
+                  )}
                   <td style={{ padding: '10px 12px', textAlign: 'right',
                     fontWeight: 600, color: item.prevPrice > 0 ? '#1e293b' : '#9ca3af' }}>
                     {item.prevPrice > 0 ? item.prevPrice.toLocaleString() + '원' : '-'}

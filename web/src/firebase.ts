@@ -68,18 +68,32 @@ export interface SpacPriceInfo {
 export type SpacPriceMap = Map<string, SpacPriceInfo>
 
 export function subscribeSpacPrices(
-  callback: (priceMap: SpacPriceMap) => void
+  callback: (priceMap: SpacPriceMap, priceLastUpdatedAt: number) => void
 ): () => void {
   if (!db) return () => {}
   const priceRef = ref(db, 'spac/price')
   const handler = onValue(priceRef, snapshot => {
     const val = snapshot.val()
-    if (!val) return callback(new Map())
+    if (!val) return callback(new Map(), 0)
     const result = new Map<string, SpacPriceInfo>()
+    // lastUpdatedAt 은 yyyyMMddHHmm 포맷 숫자로 저장될 수 있음
+    let updatedAt: number = (val['lastUpdatedAt'] as number) ?? 0
     for (const [code, info] of Object.entries(val)) {
+      if (code === 'lastUpdatedAt') continue
       result.set(code, info as SpacPriceInfo)
     }
-    callback(result)
+    callback(result, updatedAt)
   })
   return () => off(priceRef, 'value', handler)
+}
+
+export function subscribePriceLastUpdatedAt(
+  callback: (updatedAt: number) => void
+): () => void {
+  if (!db) return () => {}
+  const metaRef = ref(db, 'meta/priceLastUpdatedAt')
+  const handler = onValue(metaRef, snapshot => {
+    callback(snapshot.val() ?? 0)
+  })
+  return () => off(metaRef, 'value', handler)
 }

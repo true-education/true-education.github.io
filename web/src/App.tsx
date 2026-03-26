@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { fetchSpacList, fetchMergeList } from './api'
-import { fetchStocks, fetchLastUpdatedAt, subscribeSpacPrices } from './firebase'
+import { fetchStocks, fetchLastUpdatedAt, subscribeSpacPrices, subscribePriceLastUpdatedAt } from './firebase'
 import type { StockInfo, SpacPriceMap } from './firebase'
 import type { SpacItem, MergeItem, SpacStatus } from './types'
 import SpacTable from './components/SpacTable'
@@ -16,6 +16,9 @@ export default function App() {
   const [mergeList, setMergeList] = useState<MergeItem[]>([])
   const [stockMap, setStockMap] = useState<Map<string, StockInfo>>(new Map())
   const [priceMap, setPriceMap] = useState<SpacPriceMap>(new Map())
+  const [priceLastUpdatedAt, setPriceLastUpdatedAt] = useState<number>(0)
+  // null = 아직 응답 없음(로딩), 0 = 데이터 없음, >0 = 실제 값
+  const [priceAvailable, setPriceAvailable] = useState<boolean | null>(null)
 
   const [lastUpdated, setLastUpdated] = useState<number>(0)
   const [loading, setLoading] = useState(true)
@@ -37,7 +40,21 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const unsubscribe = subscribeSpacPrices(setPriceMap)
+    const unsubscribe = subscribeSpacPrices((map, updatedAt) => {
+      const hasData = map.size > 0
+      setPriceMap(map)
+      setPriceAvailable(hasData)
+      // /spac/price 내에 lastUpdatedAt 이 있으면 사용
+      if (updatedAt > 0) setPriceLastUpdatedAt(updatedAt)
+    })
+    return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    // meta/priceLastUpdatedAt 도 구독 (spac/price 내 필드 없는 경우 fallback)
+    const unsubscribe = subscribePriceLastUpdatedAt(at => {
+      if (at > 0) setPriceLastUpdatedAt(at)
+    })
     return unsubscribe
   }, [])
 
@@ -58,6 +75,23 @@ export default function App() {
       })()
     : null
 
+  // 실시간 가격 기준 시각 및 오늘 여부
+  const priceLastUpdatedStr = priceLastUpdatedAt > 0
+    ? (() => {
+        const s = String(priceLastUpdatedAt)
+        return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)} ${s.slice(8,10)}:${s.slice(10,12)}`
+      })()
+    : null
+
+  const isPriceToday = priceLastUpdatedAt > 0
+    ? (() => {
+        const s = String(priceLastUpdatedAt)
+        const today = new Date()
+        const ymd = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`
+        return s.slice(0, 8) === ymd
+      })()
+    : false
+
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#666' }}>
       데이터 로딩 중...
@@ -75,7 +109,12 @@ export default function App() {
           </p>
         </div>
         <div style={{ textAlign: 'right', fontSize: 12, color: '#9ca3af', lineHeight: 1.6 }}>
-          {lastUpdatedStr && <div>가격 기준 시간: {lastUpdatedStr}</div>}
+          {priceLastUpdatedStr
+            ? <div>가격 기준 시간: {priceLastUpdatedStr}{!isPriceToday && ' (전일 종가)'}</div>
+            : priceAvailable === false
+              ? <div>가격 기준 시간: — (전일 종가)</div>
+              : lastUpdatedStr && <div>가격 기준 시간: {lastUpdatedStr}</div>
+          }
           <div>
             build {__BUILD_DATE__} ({__BUILD_HASH__})
           </div>
@@ -108,7 +147,7 @@ export default function App() {
       </div>
 
       {/* 컨텐츠 */}
-      {tab === 'list' && <SpacTable items={filtered} stockMap={stockMap} priceMap={priceMap} />}
+      {tab === 'list' && <SpacTable items={filtered} stockMap={stockMap} priceMap={priceMap} isPriceToday={isPriceToday} priceAvailable={priceAvailable ?? false} />}
       {tab === 'merge' && <MergeTimeline items={mergeList} spacList={spacList} />}
 
       {/* 푸터 */}
