@@ -1,22 +1,26 @@
 import { useState } from 'react'
 import type { SpacItem } from '../types'
+import type { StockInfo } from '../firebase'
 
-interface Props { items: SpacItem[] }
+interface Props {
+  items: SpacItem[]
+  stockMap: Map<string, StockInfo>
+}
 
 const STATUS_LABEL: Record<string, string> = {
   NORMAL: '일반',
   MERGE_REVIEW: '합병심사',
   MERGE_APPROVED: '합병승인',
 }
-const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  NORMAL:         { bg: '#dcfce7', color: '#166534' },
-  MERGE_REVIEW:   { bg: '#fef9c3', color: '#854d0e' },
-  MERGE_APPROVED: { bg: '#dbeafe', color: '#1e40af' },
+const STATUS_STYLE: Record<string, { background: string; color: string }> = {
+  NORMAL:         { background: '#dcfce7', color: '#166534' },
+  MERGE_REVIEW:   { background: '#fef9c3', color: '#854d0e' },
+  MERGE_APPROVED: { background: '#dbeafe', color: '#1e40af' },
 }
 
-type SortKey = 'daysLeft' | 'name' | 'rate1' | 'rate2' | 'rate3' | 'listingDate'
+type SortKey = 'daysLeft' | 'name' | 'rate1' | 'rate2' | 'rate3' | 'listingDate' | 'prevPrice'
 
-export default function SpacTable({ items }: Props) {
+export default function SpacTable({ items, stockMap }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('daysLeft')
   const [sortAsc, setSortAsc] = useState(true)
   const [search, setSearch] = useState('')
@@ -26,11 +30,18 @@ export default function SpacTable({ items }: Props) {
     else { setSortKey(key); setSortAsc(true) }
   }
 
-  const sorted = [...items]
+  const withPrice = items.map(item => {
+    const stock = stockMap.get(item.code)
+    const prevPrice = stock ? parseInt(stock.prevPrice as string, 10) : 0
+    return { ...item, prevPrice }
+  })
+
+  const sorted = [...withPrice]
     .filter(i => !search || i.name.includes(search) || i.code.includes(search))
     .sort((a, b) => {
       const v = sortKey === 'name' ? a.name.localeCompare(b.name)
-        : (a[sortKey] as number) - (b[sortKey] as number)
+        : sortKey === 'prevPrice' ? a.prevPrice - b.prevPrice
+        : (a[sortKey as keyof typeof a] as number) - (b[sortKey as keyof typeof b] as number)
       return sortAsc ? v : -v
     })
 
@@ -60,6 +71,7 @@ export default function SpacTable({ items }: Props) {
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>종목명</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>코드</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', color: '#374151', fontSize: 13 }}>상태</th>
+              <Th label="현재가" k="prevPrice" />
               <Th label="상장일" k="listingDate" />
               <Th label="청산예정일" k="daysLeft" />
               <Th label="D-day" k="daysLeft" />
@@ -70,7 +82,7 @@ export default function SpacTable({ items }: Props) {
           </thead>
           <tbody>
             {sorted.map((item, i) => {
-              const st = STATUS_STYLE[item.status] ?? { bg: '#f3f4f6', color: '#374151' }
+              const st = STATUS_STYLE[item.status] ?? { background: '#f3f4f6', color: '#374151' }
               const urgent = item.daysLeft <= 90 && item.status === 'NORMAL'
               return (
                 <tr key={item.code}
@@ -81,6 +93,10 @@ export default function SpacTable({ items }: Props) {
                     <span style={{ ...st, padding: '2px 8px', borderRadius: 99, fontSize: 12, fontWeight: 600 }}>
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'right',
+                    fontWeight: 600, color: item.prevPrice > 0 ? '#1e293b' : '#9ca3af' }}>
+                    {item.prevPrice > 0 ? item.prevPrice.toLocaleString() + '원' : '-'}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.listingDate}</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.expireDate}</td>
