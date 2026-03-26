@@ -1,4 +1,5 @@
 import type { SpacItem, MergeItem, SpacStatus } from './types'
+import type { FounderEntry } from './components/FoundersPopup'
 
 const BASE = 'https://true-education.github.io/data'
 
@@ -86,6 +87,18 @@ export async function fetchDartCodeMap(): Promise<Map<string, string>> {
     if (stockCode) map.set(stockCode, corpCode)
   })
   return map
+}
+
+export async function fetchFounders(): Promise<Map<string, FounderEntry>> {
+  try {
+    const res = await fetch(`${BASE}/founders.json?_=${Date.now()}`)
+    const data: FounderEntry[] = await res.json()
+    const map = new Map<string, FounderEntry>()
+    data.forEach(entry => map.set(entry.code, entry))
+    return map
+  } catch {
+    return new Map()
+  }
 }
 
 export async function fetchMergeList(): Promise<MergeItem[]> {

@@ -2,10 +2,12 @@ import { useState } from 'react'
 import type { SpacItem } from '../types'
 import type { StockInfo } from '../firebase'
 import RedemptionPopup from './RedemptionPopup'
+import FoundersPopup, { type FounderEntry } from './FoundersPopup'
 
 interface Props {
   items: SpacItem[]
   stockMap: Map<string, StockInfo>
+  foundersMap?: Map<string, FounderEntry>
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -21,11 +23,12 @@ const STATUS_STYLE: Record<string, { background: string; color: string }> = {
 
 type SortKey = 'name' | 'redemptionPrice' | 'listingDate' | 'prevPrice'
 
-export default function SpacTable({ items, stockMap }: Props) {
+export default function SpacTable({ items, stockMap, foundersMap }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('listingDate')
   const [sortAsc, setSortAsc] = useState(true)
   const [search, setSearch] = useState('')
   const [popupItem, setPopupItem] = useState<SpacItem | null>(null)
+  const [foundersEntry, setFoundersEntry] = useState<FounderEntry | null>(null)
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortAsc(a => !a)
@@ -89,6 +92,23 @@ export default function SpacTable({ items, stockMap }: Props) {
                   style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb', borderTop: '1px solid #f3f4f6' }}>
                   <td style={{ padding: '10px 12px', fontWeight: 500 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {/* 발기인 info 아이콘 */}
+                      {foundersMap?.has(item.code) && (
+                        <button
+                          onClick={() => setFoundersEntry(foundersMap.get(item.code)!)}
+                          title="발기인 정보"
+                          style={{
+                            border: 'none', background: 'none', cursor: 'pointer',
+                            padding: 0, lineHeight: 1, flexShrink: 0,
+                            color: '#9ca3af', fontSize: 15,
+                            display: 'inline-flex', alignItems: 'center',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.color = '#2563eb')}
+                          onMouseLeave={e => (e.currentTarget.style.color = '#9ca3af')}
+                        >
+                          ⓘ
+                        </button>
+                      )}
                       <a
                         href={`https://finance.naver.com/item/main.naver?code=${item.code}`}
                         target="_blank"
@@ -160,6 +180,9 @@ export default function SpacTable({ items, stockMap }: Props) {
 
       {popupItem && (
         <RedemptionPopup item={popupItem} onClose={() => setPopupItem(null)} />
+      )}
+      {foundersEntry && (
+        <FoundersPopup entry={foundersEntry} onClose={() => setFoundersEntry(null)} />
       )}
     </div>
   )

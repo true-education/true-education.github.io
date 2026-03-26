@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { fetchSpacList, fetchMergeList } from './api'
+import { fetchSpacList, fetchMergeList, fetchFounders } from './api'
 import { fetchStocks, fetchLastUpdatedAt, subscribeSpacPrices, subscribePriceLastUpdatedAt } from './firebase'
 import type { StockInfo, SpacPriceMap } from './firebase'
 import type { SpacItem, MergeItem, SpacStatus } from './types'
 import SpacTable from './components/SpacTable'
+import type { FounderEntry } from './components/FoundersPopup'
 import MergeTimeline from './components/MergeTimeline'
 import SummaryCards from './components/SummaryCards'
 
@@ -15,6 +16,7 @@ export default function App() {
   const [spacList, setSpacList] = useState<SpacItem[]>([])
   const [mergeList, setMergeList] = useState<MergeItem[]>([])
   const [stockMap, setStockMap] = useState<Map<string, StockInfo>>(new Map())
+  const [foundersMap, setFoundersMap] = useState<Map<string, FounderEntry>>(new Map())
   const [_priceMap, setPriceMap] = useState<SpacPriceMap>(new Map())
 
   const [priceLastUpdatedAt, setPriceLastUpdatedAt] = useState<number>(0)
@@ -32,11 +34,13 @@ export default function App() {
       fetchMergeList(),
       fetchStocks(),
       fetchLastUpdatedAt(),
-    ]).then(([s, m, stocks, ts]) => {
+      fetchFounders(),
+    ]).then(([s, m, stocks, ts, founders]) => {
       setSpacList(s)
       setMergeList(m)
       setStockMap(stocks)
       setLastUpdated(ts)
+      setFoundersMap(founders)
     }).finally(() => setLoading(false))
   }, [])
 
@@ -144,7 +148,7 @@ export default function App() {
       </div>
 
       {/* 컨텐츠 */}
-      {tab === 'list' && <SpacTable items={filtered} stockMap={stockMap} />}
+      {tab === 'list' && <SpacTable items={filtered} stockMap={stockMap} foundersMap={foundersMap} />}
       {tab === 'merge' && <MergeTimeline items={mergeList} spacList={spacList} />}
 
       {/* 푸터 */}
