@@ -28,11 +28,10 @@ jobs:
 
       - name: Create .env from secret
         run: |
-          echo "${{ secrets.GOOGLE_SERVICES }}" | while IFS='=' read -r key value; do
-            key=$(echo "$key" | xargs)
-            value=$(echo "$value" | xargs)
-            [ -n "$key" ] && echo "${key}=${value}" >> web/.env
-          done
+          printf '%s' "$GOOGLE_SERVICES" > web/.env
+          cat web/.env
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
 
       - name: Build
         run: npm run build

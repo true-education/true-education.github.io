@@ -8,8 +8,13 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-const app = initializeApp(firebaseConfig)
-const db = getDatabase(app)
+let db: ReturnType<typeof getDatabase> | null = null
+try {
+  const app = initializeApp(firebaseConfig)
+  db = getDatabase(app)
+} catch (e) {
+  console.error('Firebase init failed:', e)
+}
 
 export interface StockInfo {
   code: string
@@ -20,6 +25,7 @@ export interface StockInfo {
 }
 
 export async function fetchStocks(): Promise<Map<string, StockInfo>> {
+  if (!db) return new Map()
   const stocksRef = ref(db, 'stocks')
   const snapshot = await get(stocksRef)
   const val = snapshot.val()
@@ -37,6 +43,7 @@ export async function fetchStocks(): Promise<Map<string, StockInfo>> {
 }
 
 export async function fetchLastUpdatedAt(): Promise<number> {
+  if (!db) return 0
   const metaRef = ref(db, 'meta/stockLastUpdatedAt')
   const snapshot = await get(metaRef)
   return snapshot.val() ?? 0
