@@ -36,6 +36,18 @@ export async function fetchSpacList(): Promise<SpacItem[]> {
     })
 }
 
+/** dart.txt → code: corp_code 매핑 */
+export async function fetchDartCodeMap(): Promise<Map<string, string>> {
+  const res = await fetch(`${BASE}/dart.txt?_=${Date.now()}`)
+  const text = await res.text()
+  const map = new Map<string, string>()
+  text.split('\n').filter(l => l.trim()).forEach(line => {
+    const [corpCode, , stockCode] = line.trim().split(/\s+/)
+    if (stockCode) map.set(stockCode, corpCode)
+  })
+  return map
+}
+
 export async function fetchMergeList(): Promise<MergeItem[]> {
   const res = await fetch(`${BASE}/merge.txt?_=${Date.now()}`)
   const data = await res.json()

@@ -5,6 +5,7 @@ import type { StockInfo } from '../firebase'
 interface Props {
   items: SpacItem[]
   stockMap: Map<string, StockInfo>
+  dartCodeMap: Map<string, string>
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -20,7 +21,7 @@ const STATUS_STYLE: Record<string, { background: string; color: string }> = {
 
 type SortKey = 'daysLeft' | 'name' | 'rate1' | 'rate2' | 'rate3' | 'listingDate' | 'prevPrice'
 
-export default function SpacTable({ items, stockMap }: Props) {
+export default function SpacTable({ items, stockMap, dartCodeMap }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('daysLeft')
   const [sortAsc, setSortAsc] = useState(true)
   const [search, setSearch] = useState('')
@@ -78,6 +79,7 @@ export default function SpacTable({ items, stockMap }: Props) {
               <Th label="1년차 %" k="rate1" />
               <Th label="2년차 %" k="rate2" />
               <Th label="3년차 %" k="rate3" />
+              <th style={{ padding: '10px 12px', textAlign: 'center', color: '#374151', fontSize: 13 }}>전자공시</th>
             </tr>
           </thead>
           <tbody>
@@ -111,6 +113,19 @@ export default function SpacTable({ items, stockMap }: Props) {
                     fontWeight: item.rate3 > 0 ? 600 : 400,
                     color: item.rate3 > 0 ? '#059669' : '#9ca3af' }}>
                     {item.rate3 > 0 ? `${(item.rate3 * 100).toFixed(2)}%` : '-'}
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    {dartCodeMap.get(item.code) ? (
+                      <a
+                        href={`https://dart.fss.or.kr/corp/searchHistory.do?textCrpCik=${dartCodeMap.get(item.code)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#2563eb', fontSize: 13, textDecoration: 'none' }}
+                        title="DART 공시 보기"
+                      >
+                        📋
+                      </a>
+                    ) : '-'}
                   </td>
                 </tr>
               )
