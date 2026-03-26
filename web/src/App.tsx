@@ -66,11 +66,12 @@ export default function App() {
             국내 기업인수목적회사(SPAC) 예치금리 및 합병 일정 현황
           </p>
         </div>
-        {lastUpdatedStr && (
-          <div style={{ fontSize: 12, color: '#9ca3af' }}>
-            종가 기준일: {lastUpdatedStr}
+        <div style={{ textAlign: 'right', fontSize: 12, color: '#9ca3af', lineHeight: 1.6 }}>
+          {lastUpdatedStr && <div>종가 기준일: {lastUpdatedStr}</div>}
+          <div>
+            build {__BUILD_DATE__} ({__BUILD_HASH__})
           </div>
-        )}
+        </div>
       </div>
 
       {/* 요약 카드 */}
