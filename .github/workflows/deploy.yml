@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'web/**'
+      - 'data/**'
       - 'ads.txt'
       - '.github/workflows/deploy.yml'
 
