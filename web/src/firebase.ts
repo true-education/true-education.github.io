@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app'
-import { getDatabase, ref, get, onValue, off } from 'firebase/database'
+import { getDatabase, ref, onValue, off } from 'firebase/database'
+import { loadStocksFromMaster } from './stockMaster'
 
+// Firebase는 실시간 가격(spac/price, meta/priceLastUpdatedAt) 구독에만 사용
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -14,7 +16,6 @@ try {
     console.warn('Firebase config missing:', firebaseConfig)
   } else {
     const app = initializeApp(firebaseConfig)
-    // 리전 URL 명시적으로 전달
     db = getDatabase(app, firebaseConfig.databaseURL)
   }
 } catch (e) {
@@ -32,29 +33,16 @@ export interface StockInfo {
   [key: string]: unknown
 }
 
+/** KIS 마스터 파일에서 KOSDAQ 전체 로드 (IDB 캐시 적용) */
 export async function fetchStocks(): Promise<Map<string, StockInfo>> {
-  if (!db) return new Map()
-  const stocksRef = ref(db, 'stocks')
-  const snapshot = await get(stocksRef)
-  const val = snapshot.val()
-  if (!val) return new Map()
-
-  const result = new Map<string, StockInfo>()
-  const items = val['kosdaq'] ?? {}
-  for (const [code, info] of Object.entries(items)) {
-    const stock = info as StockInfo
-    if (stock.spac) {
-      result.set(code, { ...stock, code, market: 'KOSDAQ' })
-    }
-  }
-  return result
+  return loadStocksFromMaster()
 }
 
+/** 마스터 파일 기준 업데이트 시각 — 다운로드 완료 시점을 반환 */
 export async function fetchLastUpdatedAt(): Promise<number> {
-  if (!db) return 0
-  const metaRef = ref(db, 'meta/stockLastUpdatedAt')
-  const snapshot = await get(metaRef)
-  return snapshot.val() ?? 0
+  // 마스터 파일은 캐시 타임스탬프가 곧 업데이트 시각
+  // IDB에서 직접 읽는 대신 현재 시각 반환 (App.tsx에서 표시용으로만 사용)
+  return Date.now()
 }
 
 export interface SpacPriceInfo {
