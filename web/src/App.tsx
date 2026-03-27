@@ -163,6 +163,11 @@ export default function App() {
 
       {/* 푸터 */}
       <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
+        <div style={{ marginBottom: 16 }}>
+          <a href="/privacy.html" style={{ fontSize: 13, color: '#9ca3af', textDecoration: 'none' }}>
+            개인정보처리방침
+          </a>
+        </div>
         <p style={{ fontSize: 13, color: '#9ca3af', marginBottom: 20 }}>
           더 많은 기능은 앱에서 확인하세요
         </p>
