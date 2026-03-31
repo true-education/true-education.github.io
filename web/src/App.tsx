@@ -121,6 +121,17 @@ export default function App() {
         </div>
       </div>
 
+      {/* 카카오 애드핏 728x90 */}
+      <div style={{ textAlign: 'center', marginBottom: 16 }}>
+        <ins
+          className="kakao_ad_area"
+          style={{ display: 'none' }}
+          data-ad-unit="DAN-O1veEVMfy5yQngHN"
+          data-ad-width="728"
+          data-ad-height="90"
+        />
+      </div>
+
       {/* 요약 카드 */}
       <SummaryCards counts={counts} onFilter={setFilter} activeFilter={filter} />
 
