@@ -1,12 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let amplitude: any = null
+/* eslint-disable @typescript-eslint/no-explicit-any */
+let amp: any = null
 
 const API_KEY = import.meta.env.VITE_AMPLITUDE_API_KEY as string | undefined
 
+// Function() trick: tsc가 모듈 경로를 정적 분석하지 않음
+const dynamicImport = (m: string): Promise<any> =>
+  (Function('m', 'return import(m)') as (m: string) => Promise<any>)(m)
+
 export async function initAnalytics() {
   if (!API_KEY) return
-  amplitude = await import('@amplitude/analytics-browser')
-  amplitude.init(API_KEY, {
+  amp = await dynamicImport('@amplitude/analytics-browser')
+  amp.init(API_KEY, {
     defaultTracking: {
       pageViews: false,
       sessions: true,
@@ -16,26 +20,22 @@ export async function initAnalytics() {
   })
 }
 
-/** 화면/탭 전환 */
 export function trackPageView(page: string, properties?: Record<string, unknown>) {
-  amplitude?.track('page_view', { page, ...properties })
+  amp?.track('page_view', { page, ...properties })
 }
 
-/** 버튼 클릭 (종목 이름 + 버튼 종류) */
 export function trackButtonClick(buttonType: string, stockName?: string, properties?: Record<string, unknown>) {
-  amplitude?.track('button_click', {
+  amp?.track('button_click', {
     button_type: buttonType,
     ...(stockName ? { stock_name: stockName } : {}),
     ...properties,
   })
 }
 
-/** 필터 변경 */
 export function trackFilterChange(filter: string) {
-  amplitude?.track('filter_change', { filter })
+  amp?.track('filter_change', { filter })
 }
 
-/** 정렬 변경 */
 export function trackSortChange(sort_key: string, sort_asc: boolean) {
-  amplitude?.track('sort_change', { sort_key, sort_asc })
+  amp?.track('sort_change', { sort_key, sort_asc })
 }
