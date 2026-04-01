@@ -31,8 +31,7 @@ export default function App() {
   const [filter, setFilter] = useState<Filter>('ALL')
 
   useEffect(() => {
-    initAnalytics()
-    trackPageView('list')
+    initAnalytics().then(() => trackPageView('list'))
   }, [])
 
   useEffect(() => {
