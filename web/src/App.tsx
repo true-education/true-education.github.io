@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { initAnalytics, trackPageView, trackFilterChange } from './analytics'
 import { fetchSpacList, fetchMergeList, fetchFounders, fetchRefundLocal } from './api'
 import type { RefundInfo } from './api'
 import { fetchStocks, fetchLastUpdatedAt, subscribeSpacPrices, subscribePriceLastUpdatedAt } from './firebase'
@@ -28,6 +29,11 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<Tab>('list')
   const [filter, setFilter] = useState<Filter>('ALL')
+
+  useEffect(() => {
+    initAnalytics()
+    trackPageView('list')
+  }, [])
 
   useEffect(() => {
     Promise.all([
@@ -133,14 +139,14 @@ export default function App() {
       </div>
 
       {/* 요약 카드 */}
-      <SummaryCards counts={counts} onFilter={setFilter} activeFilter={filter} />
+      <SummaryCards counts={counts} onFilter={(f) => { setFilter(f); trackFilterChange(f) }} activeFilter={filter} />
 
       {/* 탭 */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, borderBottom: '1px solid #e5e7eb' }}>
         {(['list', 'merge', 'refund'] as Tab[]).map(t => (
           <button
             key={t}
-            onClick={() => setTab(t)}
+            onClick={() => { setTab(t); trackPageView(t) }}
             style={{
               padding: '8px 16px',
               border: 'none',

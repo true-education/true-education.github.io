@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { trackButtonClick, trackSortChange } from '../analytics'
 import type { SpacItem } from '../types'
 import type { StockInfo, SpacPriceMap } from '../firebase'
 import type { RefundInfo } from '../api'
@@ -91,8 +92,10 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
   const [foundersEntry, setFoundersEntry] = useState<FounderEntry | null>(null)
 
   const handleSort = (key: SortKey) => {
+    const newAsc = sortKey === key ? !sortAsc : true
     if (sortKey === key) setSortAsc(a => !a)
     else { setSortKey(key); setSortAsc(true) }
+    trackSortChange(key, newAsc)
   }
 
   const withPrice = items.map(item => {
@@ -140,7 +143,7 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       {foundersMap?.has(item.code) && (
         <button
-          onClick={() => setFoundersEntry(foundersMap.get(item.code)!)}
+          onClick={() => { setFoundersEntry(foundersMap.get(item.code)!); trackButtonClick('founders', item.name) }}
           title="발기인 정보"
           style={{ border: 'none', background: 'none', cursor: 'pointer',
             padding: 0, lineHeight: 1, flexShrink: 0, color: '#9ca3af', fontSize: 15,
@@ -240,7 +243,7 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
                       <span style={{ color: '#9ca3af', marginRight: 6 }}>예상 청산가</span>
                       {item.redemptionPrice ? (
                         <button
-                          onClick={() => setPopupItem(item)}
+                          onClick={() => { setPopupItem(item); trackButtonClick('redemption_price', item.name) }}
                           style={{ background: 'none', border: 'none', cursor: 'pointer',
                             fontWeight: 600, color: '#059669', fontSize: 13, padding: 0,
                             textDecoration: 'underline dotted' }}>
@@ -296,7 +299,7 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
                     <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                       {item.redemptionPrice ? (
                         <button
-                          onClick={() => setPopupItem(item)}
+                          onClick={() => { setPopupItem(item); trackButtonClick('redemption_price', item.name) }}
                           style={{ background: 'none', border: 'none', cursor: 'pointer',
                             fontWeight: 600, color: '#059669', fontSize: 13, padding: 0,
                             textDecoration: 'underline dotted' }}>
