@@ -61,5 +61,12 @@
     "refundAmount": 2146,
     "date": "20260710",
     "fixed": false
+  },
+  "444920": {
+    "code": "444920",
+    "nameKr": "유안타제11호스팩",
+    "refundAmount": 2156.9,
+    "date": "20260805",
+    "fixed": false
   }
 }
