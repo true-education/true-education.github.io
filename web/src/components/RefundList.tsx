@@ -83,7 +83,7 @@ export default function RefundList({ items }: Props) {
             <div style={{ flexShrink: 0, textAlign: 'right' }}>
               <div style={{ fontSize: 11, color: '#9ca3af' }}>예상 청산가</div>
               <div style={{ fontWeight: 700, fontSize: 17, color: '#059669', marginTop: 1 }}>
-                {Math.round(item.refundAmount).toLocaleString()}원
+                {parseFloat(item.refundAmount.toFixed(2)).toLocaleString()}원
               </div>
             </div>
           </div>
