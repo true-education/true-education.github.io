@@ -67,11 +67,11 @@ export default function App() {
     return unsubscribe
   }, [])
 
-  // 가격이 0인 종목 제외 (MERGE_REVIEW/MERGE_APPROVED는 가격 무관 항상 표시)
+  // 마스터 파일에 없거나 가격이 0인 종목 제외
   const priceFilteredList = spacList.filter(item => {
-    if (item.status === 'MERGE_REVIEW' || item.status === 'MERGE_APPROVED') return true
     const stock = stockMap.get(item.code)
-    const stockPrice = stock ? parseInt(stock.prevPrice as string, 10) : 0
+    if (!stock) return false
+    const stockPrice = parseInt(stock.prevPrice as string, 10) || 0
     const livePrice = priceMap.get(item.code)
     const prevPrice = livePrice ? parseInt(livePrice.price, 10) : stockPrice
     return prevPrice > 0
