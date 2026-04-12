@@ -150,7 +150,7 @@ function parseKosdaq(line: string): { code: string } & StockEntry | null {
   const attrs = line.slice(-ATTR_LEN)
   const halt = attrs.substring(55, 56) === 'Y'
   const designated = attrs.substring(57, 58) === 'Y'
-  const prevPrice = attrs.substring(26, 31).trim()
+  const prevPrice = attrs.substring(40, 45).trim()
   return { code, nameKr, halt, designated, prevPrice }
 }
 
