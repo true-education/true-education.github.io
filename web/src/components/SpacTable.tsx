@@ -111,7 +111,6 @@ export default function SpacTable({ items, stockMap, priceMap, refundMap, founde
   })
 
   const sorted = [...withPrice]
-    .filter(i => i.prevPrice > 0)
     .filter(i => !search || i.name.includes(search) || i.code.includes(search))
     .sort((a, b) => {
       const v = sortKey === 'name' ? a.name.localeCompare(b.name)

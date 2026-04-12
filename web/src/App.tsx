@@ -67,13 +67,22 @@ export default function App() {
     return unsubscribe
   }, [])
 
-  const filtered = filter === 'ALL' ? spacList : spacList.filter(s => s.status === filter)
+  // 가격이 0인 종목 제외 (SpacTable과 동일한 로직)
+  const priceFilteredList = spacList.filter(item => {
+    const stock = stockMap.get(item.code)
+    const stockPrice = stock ? parseInt(stock.prevPrice as string, 10) : 0
+    const livePrice = priceMap.get(item.code)
+    const prevPrice = livePrice ? parseInt(livePrice.price, 10) : stockPrice
+    return prevPrice > 0
+  })
+
+  const filtered = filter === 'ALL' ? priceFilteredList : priceFilteredList.filter(s => s.status === filter)
 
   const counts = {
-    total: spacList.length,
-    normal: spacList.filter(s => s.status === 'NORMAL').length,
-    review: spacList.filter(s => s.status === 'MERGE_REVIEW').length,
-    approved: spacList.filter(s => s.status === 'MERGE_APPROVED').length,
+    total: priceFilteredList.length,
+    normal: priceFilteredList.filter(s => s.status === 'NORMAL').length,
+    review: priceFilteredList.filter(s => s.status === 'MERGE_REVIEW').length,
+    approved: priceFilteredList.filter(s => s.status === 'MERGE_APPROVED').length,
   }
 
   const lastUpdatedStr = lastUpdated
@@ -157,7 +166,7 @@ export default function App() {
               marginBottom: -1,
             }}
           >
-            {t === 'list' ? `전체 목록 (${spacList.length})`
+            {t === 'list' ? `전체 목록 (${priceFilteredList.length})`
               : t === 'merge' ? `합병 진행 (${mergeList.length})`
               : `청산 예정 (${refundMap.size})`}
           </button>
