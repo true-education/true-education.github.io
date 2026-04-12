@@ -21,7 +21,7 @@ import type { StockInfo } from './firebase'
 const MASTER_BASE = 'https://new.real.download.dws.co.kr/common/master'
 const IDB_NAME = 'true-data-master'
 const IDB_STORE = 'stocks'
-const IDB_KEY = 'data'
+const IDB_KEY = 'data-v2'  // prevPrice 오프셋 수정으로 캐시 무효화
 
 /** 마스터 파일이 업로드되는 시각 (HHMM 정수) */
 const UPLOAD_TIMES = [600, 655, 735, 755, 845, 946, 1055, 1710, 1730, 1755, 1810, 1830, 1855]
