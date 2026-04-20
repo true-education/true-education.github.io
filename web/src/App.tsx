@@ -140,7 +140,7 @@ export default function App() {
       <div style={{ textAlign: 'center', marginBottom: 16 }}>
         <ins
           className="kakao_ad_area"
-          style={{ display: 'block' }}
+          style={{ display: 'none', width: '100%' }}
           data-ad-unit="DAN-O1veEVMfy5yQngHN"
           data-ad-width="728"
           data-ad-height="90"
