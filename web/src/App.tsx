@@ -118,10 +118,10 @@ export default function App() {
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
       {/* 카카오 애드핏 728x90 */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, textAlign: 'center' }}>
         <ins
           className="kakao_ad_area"
-          style={{ display: 'none', width: '100%' }}
+          style={{ display: 'none' }}
           data-ad-unit="DAN-O1veEVMfy5yQngHN"
           data-ad-width="728"
           data-ad-height="90"
