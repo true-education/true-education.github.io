@@ -137,7 +137,7 @@ export default function App() {
       </div>
 
       {/* 카카오 애드핏 728x90 */}
-      <div style={{ textAlign: 'center', marginBottom: 16 }}>
+      <div style={{ marginBottom: 16 }}>
         <ins
           className="kakao_ad_area"
           style={{ display: 'none', width: '100%' }}
