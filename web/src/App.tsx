@@ -117,6 +117,16 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 16px', fontFamily: 'system-ui, sans-serif' }}>
+      {/* 카카오 애드핏 728x90 */}
+      <div style={{ marginBottom: 16 }}>
+        <ins
+          className="kakao_ad_area"
+          style={{ display: 'none', width: '100%' }}
+          data-ad-unit="DAN-O1veEVMfy5yQngHN"
+          data-ad-width="728"
+          data-ad-height="90"
+        />
+      </div>
       {/* 헤더 */}
       <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
@@ -134,17 +144,6 @@ export default function App() {
           }
           <div>build {__BUILD_DATE__} ({__BUILD_HASH__})</div>
         </div>
-      </div>
-
-      {/* 카카오 애드핏 728x90 */}
-      <div style={{ marginBottom: 16 }}>
-        <ins
-          className="kakao_ad_area"
-          style={{ display: 'none', width: 728, margin: '0 auto' }}
-          data-ad-unit="DAN-O1veEVMfy5yQngHN"
-          data-ad-width="728"
-          data-ad-height="90"
-        />
       </div>
 
       {/* 요약 카드 */}
