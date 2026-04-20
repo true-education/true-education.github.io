@@ -137,10 +137,10 @@ export default function App() {
       </div>
 
       {/* 카카오 애드핏 728x90 */}
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ marginBottom: 16 }}>
         <ins
           className="kakao_ad_area"
-          style={{ display: 'none', width: '100%' }}
+          style={{ display: 'none', width: 728, margin: '0 auto' }}
           data-ad-unit="DAN-O1veEVMfy5yQngHN"
           data-ad-width="728"
           data-ad-height="90"
