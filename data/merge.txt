@@ -1,41 +1,28 @@
 [
-  {
-    "nameKr": "엔에이치스팩30호",
-    "code": "466910",
-    "target": "케이피항공산업",
-    "dissentNoticeStartDate": "20260309",
-    "dissentNoticeEndDate": "20260323",
-    "appraisalRightStartDate": "20260324",
-    "appraisalRightEndDate": "20260413",
-    "tradingHaltStartDate": "20260423",
-    "tradingHaltEndDate": "20260518",
-    "newShareListingDate": "20260519",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260223001426"
-  },
-  {
-    "nameKr": "엔에이치스팩29호",
-    "code": "451700",
-    "target": "세미티에스",
-    "dissentNoticeStartDate": "20260402",
-    "dissentNoticeEndDate": "20260416",
-    "appraisalRightStartDate": "20260417",
-    "appraisalRightEndDate": "20260507",
-    "tradingHaltStartDate": "20260516",
-    "tradingHaltEndDate": "20260604",
-    "newShareListingDate": "20260605",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260227006908"
-  },
-  {
-    "nameKr": "교보16호스팩",
-    "code": "482520",
-    "target": "에스케이팩",
-    "dissentNoticeStartDate": "20260326",
-    "dissentNoticeEndDate": "20260409",
-    "appraisalRightStartDate": "20260410",
-    "appraisalRightEndDate": "20260428",
-    "tradingHaltStartDate": "20260514",
-    "tradingHaltEndDate": "20260605",
-    "newShareListingDate": "20260608",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260422000676"
-  }
+    {
+        "nameKr": "엔에이치스팩30호",
+        "code": "466910",
+        "target": "케이피항공산업",
+        "dissentNoticeStartDate": "20260309",
+        "dissentNoticeEndDate": "20260323",
+        "appraisalRightStartDate": "20260324",
+        "appraisalRightEndDate": "20260413",
+        "tradingHaltStartDate": "20260423",
+        "tradingHaltEndDate": "20260518",
+        "newShareListingDate": "20260519",
+        "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260223001426"
+    },
+    {
+        "nameKr": "엔에이치스팩29호",
+        "code": "451700",
+        "target": "세미티에스",
+        "dissentNoticeStartDate": "20260402",
+        "dissentNoticeEndDate": "20260416",
+        "appraisalRightStartDate": "20260417",
+        "appraisalRightEndDate": "20260507",
+        "tradingHaltStartDate": "20260516",
+        "tradingHaltEndDate": "20260604",
+        "newShareListingDate": "20260605",
+        "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260227006908"
+    }
 ]
