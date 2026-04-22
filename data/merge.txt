@@ -24,5 +24,18 @@
     "tradingHaltEndDate": "20260604",
     "newShareListingDate": "20260605",
     "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260227006908"
+  },
+  {
+    "nameKr": "교보16호스팩",
+    "code": "482520",
+    "target": "에스케이팩",
+    "dissentNoticeStartDate": "20260326",
+    "dissentNoticeEndDate": "20260409",
+    "appraisalRightStartDate": "20260410",
+    "appraisalRightEndDate": "20260428",
+    "tradingHaltStartDate": "20260514",
+    "tradingHaltEndDate": "20260605",
+    "newShareListingDate": "20260608",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260422000676"
   }
 ]
