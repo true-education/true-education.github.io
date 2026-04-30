@@ -114,17 +114,28 @@ def save_v1(rows):
 # ── 년차 계산 ─────────────────────────────────────────────────────────────────
 def get_year_index(listing_date_str, change_date_str):
     """
-    상장일과 변경일을 기준으로 1/2/3년차 반환 (1, 2, 3)
-    1년차: 0~12개월, 2년차: 12~24개월, 3년차: 24~36개월
+    예치이율 변경 공시의 대상 년차 반환 (1, 2, 3)
+
+    예치이율 변경 공시는 현재 진행 중인 년차가 끝나기 전에
+    다음 년차에 적용될 금리를 미리 공시하는 방식으로 이루어진다.
+    따라서 변경일 기준 현재 년차 + 1을 반환한다.
+
+    예) 상장일 2024-05-07, 변경일 2026-04-29 → 경과 23개월(2년차 중)
+        → 다음 3년차 금리를 변경하는 공시 → return 3
+
+    단, 이미 3년차인 경우(경과 24개월 이상)는 3년차를 반환한다.
     """
     listing = datetime.strptime(listing_date_str, "%Y-%m-%d").date()
     change  = datetime.strptime(change_date_str, "%Y-%m-%d").date()
     months  = (change.year - listing.year) * 12 + (change.month - listing.month)
     if months < 12:
-        return 1
-    elif months < 24:
+        # 1년차 중 공시 → 2년차 금리 변경
         return 2
+    elif months < 24:
+        # 2년차 중 공시 → 3년차 금리 변경
+        return 3
     else:
+        # 3년차 중 공시 → 3년차 금리 변경 (마지막)
         return 3
 
 
