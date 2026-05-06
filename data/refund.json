@@ -16,9 +16,9 @@
   "456490": {
     "code": "456490",
     "nameKr": "교보14호스팩",
-    "refundAmount": 2160.3,
+    "refundAmount": 2159.25,
     "date": "20260518",
-    "fixed": false
+    "fixed": true
   },
   "455250": {
     "code": "455250",
