@@ -89,5 +89,12 @@
     "refundAmount": 2159.58,
     "date": "20260820",
     "fixed": false
+  },
+  "462020": {
+    "code": "462020",
+    "nameKr": "에이치엠씨제6호스팩",
+    "refundAmount": 2160.9,
+    "date": "20260824",
+    "fixed": false
   }
 }
