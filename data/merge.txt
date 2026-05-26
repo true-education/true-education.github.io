@@ -1,18 +1,5 @@
 [
     {
-        "nameKr": "엔에이치스팩30호",
-        "code": "466910",
-        "target": "케이피항공산업",
-        "dissentNoticeStartDate": "20260309",
-        "dissentNoticeEndDate": "20260323",
-        "appraisalRightStartDate": "20260324",
-        "appraisalRightEndDate": "20260413",
-        "tradingHaltStartDate": "20260423",
-        "tradingHaltEndDate": "20260518",
-        "newShareListingDate": "20260519",
-        "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260223001426"
-    },
-    {
         "nameKr": "엔에이치스팩29호",
         "code": "451700",
         "target": "세미티에스",
