@@ -6,6 +6,7 @@ DART 전자공시 기반 spac 데이터 자동 업데이트 스크립트
 - 기업인수목적회사의 예치·신탁계약 내용 변경 (금리 변경)
 - 합병 결의 (MERGE_REVIEW)
 - 합병 승인 (MERGE_APPROVED)
+- 주요주주 변동 → founders.json 업데이트
 """
 
 import os
@@ -21,13 +22,14 @@ import urllib.request
 import urllib.parse
 
 # ── 설정 ──────────────────────────────────────────────────────────────────────
-DART_API_KEY = "cebe93589e687856da2d84703fbad8ac87f0a98f"
-DART_BASE    = "https://opendart.fss.or.kr/api"
-REPO_DIR     = Path(__file__).parent.parent  # ~/build/true-data
-V1_PATH      = REPO_DIR / "data" / "v1.txt"
-MERGE_PATH   = REPO_DIR / "data" / "merge.txt"
-DART_PATH    = REPO_DIR / "data" / "dart.txt"
-STATE_PATH   = REPO_DIR / "scripts" / ".last_processed.json"
+DART_API_KEY   = "cebe93589e687856da2d84703fbad8ac87f0a98f"
+DART_BASE      = "https://opendart.fss.or.kr/api"
+REPO_DIR       = Path(__file__).parent.parent  # ~/build/true-data
+V1_PATH        = REPO_DIR / "data" / "v1.txt"
+MERGE_PATH     = REPO_DIR / "data" / "merge.txt"
+DART_PATH      = REPO_DIR / "data" / "dart.txt"
+FOUNDERS_PATH  = REPO_DIR / "data" / "founders.json"
+STATE_PATH     = REPO_DIR / "scripts" / ".last_processed.json"
 
 # 공시 보고서명 키워드
 INTEREST_KEYWORDS = ["예치·신탁계약", "예치ㆍ신탁계약", "예치.신탁계약", "예치ㆍ신탁"]
@@ -49,6 +51,13 @@ MERGE_CANCEL_KEYWORDS = [
     "합병취소", "합병 취소",
     "기업인수목적회사관련합병취소",
     "합병계약해제", "합병 계약 해제",
+]
+
+# 주요주주 변동 공시
+MAJORSTOCK_KEYWORDS = [
+    "주요주주특정증권등소유상황보고서",
+    "임원ㆍ주요주주특정증권등소유상황보고서",
+    "임원·주요주주특정증권등소유상황보고서",
 ]
 
 
@@ -336,6 +345,115 @@ def update_merge_txt(corp_code, v1_row):
         f.write("\n")
 
 
+# ── founders.json 파싱/저장 ───────────────────────────────────────────────────
+def load_founders():
+    """founders.json → list of dict"""
+    if not FOUNDERS_PATH.exists():
+        return []
+    with open(FOUNDERS_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_founders(data):
+    with open(FOUNDERS_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+# ── 주요주주 변동 처리 ─────────────────────────────────────────────────────────
+def process_majorstock_change(corp_code, corp_name, stock_code):
+    """
+    주요주주특정증권등소유상황보고서 감지 시 DART majorstock API로
+    최신 주요주주 현황을 조회해 founders.json을 갱신한다.
+
+    DART majorstock API (list.json):
+      corp_code  : DART 고유번호
+    반환 필드 예시:
+      rcept_no, corp_code, corp_name, stock_code,
+      repror_nm(보고자), stkqy(보유주식수), stkqy_irds(증감),
+      report_resn(보고사유)
+    """
+    print(f"  → 주요주주 변동 감지: {corp_name} ({stock_code})")
+
+    try:
+        result = dart_get("majorstock.json", {"corp_code": corp_code})
+    except Exception as e:
+        print(f"  [ERROR] majorstock 조회 실패: {e}")
+        return False
+
+    if result.get("status") != "000":
+        print(f"  [SKIP] majorstock API 오류: {result.get('message')}")
+        return False
+
+    items = result.get("list", [])
+    if not items:
+        print(f"  [SKIP] 주요주주 목록 없음")
+        return False
+
+    # 보고자별 최신 보유주식수 집계 (동일 보고자의 최신 보고 기준)
+    latest: dict[str, dict] = {}
+    for item in items:
+        name = item.get("repror_nm", "").strip()
+        if not name:
+            continue
+        # rcept_no는 접수번호로 숫자가 클수록 최신
+        if name not in latest or item.get("rcept_no", "") > latest[name].get("rcept_no", ""):
+            latest[name] = item
+
+    # founders 엔트리 구성
+    new_founders = []
+    total_issued = None  # 발행주식 총수는 majorstock API에 없으므로 비율은 None 유지
+
+    for name, item in latest.items():
+        try:
+            shares = int(str(item.get("stkqy", "0")).replace(",", ""))
+        except ValueError:
+            shares = 0
+        if shares <= 0:
+            continue
+
+        # 보고사유로 note 추정
+        resn = item.get("report_resn", "")
+        if "최대주주" in resn:
+            note = "최대주주"
+        elif "임원" in resn:
+            note = "임원"
+        else:
+            note = "주요주주"
+
+        new_founders.append({
+            "name": name,
+            "shares": shares,
+            "pct": None,   # 비율은 majorstock API에서 제공하지 않음
+            "note": note,
+        })
+
+    if not new_founders:
+        print(f"  [SKIP] 유효한 주주 데이터 없음")
+        return False
+
+    # founders.json 업데이트
+    data = load_founders()
+    existing_idx = next((i for i, e in enumerate(data) if e.get("code") == stock_code), None)
+
+    entry = {
+        "code": stock_code,
+        "nameKr": corp_name,
+        "founders": new_founders,
+        "source": "majorstock",
+    }
+
+    if existing_idx is not None:
+        old_founders = data[existing_idx].get("founders", [])
+        data[existing_idx] = entry
+        print(f"  ✓ founders.json 갱신: {corp_name} ({len(old_founders)}명 → {len(new_founders)}명)")
+    else:
+        data.append(entry)
+        print(f"  ✓ founders.json 신규 추가: {corp_name} ({len(new_founders)}명)")
+
+    save_founders(data)
+    return True
+
+
 # ── 공시 목록 조회 ─────────────────────────────────────────────────────────────
 def load_dart_codes():
     """dart.txt → {corp_code: (name, stock_code)} 매핑"""
@@ -367,7 +485,8 @@ def get_recent_spac_disclosures(bgn_de, end_de):
             for item in result.get("list", []):
                 report_nm = item.get("report_nm", "")
                 if any(kw in report_nm for kw in
-                       INTEREST_KEYWORDS + MERGE_REVIEW_KEYWORDS + MERGE_APPROVED_KEYWORDS + MERGE_CANCEL_KEYWORDS):
+                       INTEREST_KEYWORDS + MERGE_REVIEW_KEYWORDS + MERGE_APPROVED_KEYWORDS +
+                       MERGE_CANCEL_KEYWORDS + MAJORSTOCK_KEYWORDS):
                     items.append(item)
         except Exception as e:
             print(f"  [WARN] {info['name']} 조회 실패: {e}")
@@ -391,7 +510,7 @@ def save_state(state):
 # ── Git 커밋/푸시 ─────────────────────────────────────────────────────────────
 def git_commit_push(message):
     os.chdir(REPO_DIR)
-    subprocess.run(["git", "add", "data/v1.txt", "data/merge.txt"], check=True)
+    subprocess.run(["git", "add", "data/v1.txt", "data/merge.txt", "data/founders.json"], check=True)
     result = subprocess.run(["git", "diff", "--cached", "--quiet"])
     if result.returncode == 0:
         print("  변경사항 없음, 커밋 스킵")
@@ -450,6 +569,13 @@ def main():
         elif any(kw in report_nm for kw in MERGE_CANCEL_KEYWORDS):
             corp_code = item.get("corp_code", "")
             if process_merge_status(corp_code, corp_name, "NORMAL"):
+                changed = True
+
+        # 주요주주 변동 → founders.json 갱신
+        elif any(kw in report_nm for kw in MAJORSTOCK_KEYWORDS):
+            corp_code  = item.get("corp_code", "")
+            stock_code = item.get("stock_code", "")
+            if process_majorstock_change(corp_code, corp_name, stock_code):
                 changed = True
 
         new_processed.append(rcept_no)
