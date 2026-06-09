@@ -68,5 +68,12 @@
     "refundAmount": 2160.9,
     "date": "20260824",
     "fixed": false
+  },
+  "464680": {
+    "code": "464680",
+    "nameKr": "KB제27호스팩",
+    "refundAmount": 2155,
+    "date": "20260928",
+    "fixed": false
   }
 }
