@@ -2,16 +2,16 @@
     "455910": {
         "code": "455910",
         "nameKr": "에스케이증권제9호스팩",
-        "refundAmount": 2157.5,
+        "refundAmount": 2153.4,
         "date": "20260624",
-        "fixed": false
+        "fixed": true
     },
     "450940": {
         "code": "450940",
         "nameKr": "유안타제14호스팩",
-        "refundAmount": 2157.5,
+        "refundAmount": 2158.15,
         "date": "20260624",
-        "fixed": false
+        "fixed": true
     },
     "457940": {
         "code": "457940",
