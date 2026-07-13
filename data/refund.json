@@ -9,9 +9,9 @@
     "452670": {
         "code": "452670",
         "nameKr": "상상인제4호스팩",
-        "refundAmount": 2155,
+        "refundAmount": 2155.6,
         "date": "20260716",
-        "fixed": false
+        "fixed": true
     },
     "444920": {
         "code": "444920",
