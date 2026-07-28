@@ -47,5 +47,12 @@
         "refundAmount": 2154.11,
         "date": "20260930",
         "fixed": false
+    },
+    "467930": {
+        "code": "467930",
+        "nameKr": "IBKS제23호스팩",
+        "refundAmount": 2160.86,
+        "date": "20261103",
+        "fixed": false
     }
 }
