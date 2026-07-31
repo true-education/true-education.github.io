@@ -54,5 +54,12 @@
         "refundAmount": 2160.86,
         "date": "20261103",
         "fixed": false
+    },
+    "469880": {
+        "code": "469880",
+        "nameKr": "하나30호스팩",
+        "refundAmount": 2152.77,
+        "date": "20261112",
+        "fixed": false
     }
 }
