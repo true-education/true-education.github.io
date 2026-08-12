@@ -2,16 +2,16 @@
     "452980": {
         "code": "452980",
         "nameKr": "신한제11호스팩",
-        "refundAmount": 2159.58,
+        "refundAmount": 2157.3,
         "date": "20260820",
-        "fixed": false
+        "fixed": true
     },
     "462020": {
         "code": "462020",
         "nameKr": "에이치엠씨제6호스팩",
-        "refundAmount": 2160.9,
+        "refundAmount": 2149.6,
         "date": "20260824",
-        "fixed": false
+        "fixed": true
     },
     "464680": {
         "code": "464680",
