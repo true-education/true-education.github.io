@@ -11,6 +11,7 @@ DART 전자공시 기반 spac 데이터 자동 업데이트 스크립트
 
 import os
 import re
+import sys
 import json
 import zipfile
 import tempfile
@@ -20,6 +21,17 @@ from pathlib import Path
 
 import urllib.request
 import urllib.parse
+
+
+def log(*args, **kwargs):
+    """진행 로그는 stderr 로 보낸다.
+
+    stdout 은 슬랙 레포트 전용이라, 아래처럼 파이프로 바로 넘길 수 있다.
+        python3 update_spac.py | python3 slack_post.py <채널ID>
+    """
+    kwargs.setdefault("file", sys.stderr)
+    print(*args, **kwargs)
+
 
 # ── 설정 ──────────────────────────────────────────────────────────────────────
 from dart_key import load_dart_api_key
@@ -151,18 +163,20 @@ def get_year_index(listing_date_str, change_date_str):
 
 
 # ── 금리 변경 처리 ─────────────────────────────────────────────────────────────
-def process_interest_change(rcept_no, corp_name, rcept_dt):
-    """예치이율 변경 공시 처리"""
+def process_interest_change(rcept_no, corp_name, rcept_dt, issues):
+    """예치이율 변경 공시 처리. 반영했으면 변경 내역 dict, 아니면 None."""
     text = dart_download_doc(rcept_no)
     if not text:
-        print(f"  [SKIP] 문서 파싱 실패: {rcept_no}")
-        return False
+        log(f"  [SKIP] 문서 파싱 실패: {rcept_no}")
+        issues.append(f"{corp_name}: 공시 원문을 읽지 못함")
+        return None
 
     # 변경 후 금리 파싱 (예: 변경 후: 2.55%, 변경후 : 2.55%)
     match = re.search(r'변경\s*후[^\d]*?([\d.]+)\s*%', text)
     if not match:
-        print(f"  [SKIP] 변경 후 금리 파싱 실패: {text[:200]}")
-        return False
+        log(f"  [SKIP] 변경 후 금리 파싱 실패: {text[:200]}")
+        issues.append(f"{corp_name}: 변경 후 금리를 파싱하지 못함")
+        return None
 
     new_rate = float(match.group(1)) / 100
 
@@ -173,57 +187,71 @@ def process_interest_change(rcept_no, corp_name, rcept_dt):
     else:
         change_date = f"{rcept_dt[:4]}-{rcept_dt[4:6]}-{rcept_dt[6:8]}"
 
-    print(f"  → 금리 변경: {corp_name}, 변경일: {change_date}, 새 금리: {new_rate:.4f}")
+    log(f"  → 금리 변경: {corp_name}, 변경일: {change_date}, 새 금리: {new_rate:.4f}")
 
     rows = load_v1()
-    updated = False
+    change = None
     for row in rows:
         if corp_name in row["name"] or row["name"] in corp_name:
             year_idx = get_year_index(row["listing_date"], change_date)
             rate_key = f"rate{year_idx}"
             old_rate = row[rate_key]
             row[rate_key] = f"{new_rate:.4f}"
-            print(f"  ✓ {row['name']} ({row['code']}) {year_idx}년차: {old_rate} → {row[rate_key]}")
-            updated = True
+            log(f"  ✓ {row['name']} ({row['code']}) {year_idx}년차: {old_rate} → {row[rate_key]}")
+            change = {
+                "name": row["name"], "code": row["code"],
+                "year": year_idx, "old": old_rate, "new": row[rate_key],
+            }
             break
 
-    if updated:
+    if change:
         save_v1(rows)
     else:
-        print(f"  [SKIP] v1.txt에서 종목 찾지 못함: {corp_name}")
+        log(f"  [SKIP] v1.txt에서 종목 찾지 못함: {corp_name}")
+        issues.append(f"{corp_name}: v1.txt 에서 종목을 찾지 못함")
 
-    return updated
+    return change
 
 
 # ── 합병 상태 처리 ─────────────────────────────────────────────────────────────
-def process_merge_status(corp_code, corp_name, new_status):
-    """합병 결의/승인 상태 업데이트. MERGE_APPROVED이면 merge.txt도 업데이트 시도"""
+def process_merge_status(corp_code, corp_name, new_status, issues):
+    """합병 결의/승인 상태 업데이트. 반영했으면 변경 내역 dict, 아니면 None.
+
+    MERGE_APPROVED 이면 merge.txt 도 갱신하고 파싱된 일정을 함께 담는다.
+    """
     rows = load_v1()
-    updated = False
+    change = None
     target_row = None
     for row in rows:
         if corp_name in row["name"] or row["name"] in corp_name:
             old = row["status"]
             if old != new_status:
                 row["status"] = new_status
-                print(f"  ✓ {row['name']} ({row['code']}) 상태: {old} → {new_status}")
-                updated = True
+                log(f"  ✓ {row['name']} ({row['code']}) 상태: {old} → {new_status}")
+                change = {
+                    "name": row["name"], "code": row["code"],
+                    "old": old, "new": new_status, "schedule": None,
+                }
                 target_row = row
             break
 
-    if updated:
+    if change:
         save_v1(rows)
+    else:
+        log(f"  [SKIP] 상태 변경 없음: {corp_name}")
 
     # MERGE_APPROVED이면 merge.txt 업데이트
     if new_status == "MERGE_APPROVED" and target_row:
-        update_merge_txt(corp_code, target_row)
+        schedule = update_merge_txt(corp_code, target_row, issues)
+        if change:
+            change["schedule"] = schedule
 
-    return updated
+    return change
 
 
-def update_merge_txt(corp_code, v1_row):
-    """합병 일정 공시에서 날짜 파싱해 merge.txt 업데이트"""
-    print(f"  → merge.txt 업데이트 시도: {v1_row['name']}")
+def update_merge_txt(corp_code, v1_row, issues):
+    """합병 일정 공시에서 날짜 파싱해 merge.txt 업데이트. 파싱된 일정 dict 또는 None."""
+    log(f"  → merge.txt 업데이트 시도: {v1_row['name']}")
 
     # 최근 1년 이내 합병결정 공시 찾기
     bgn = (date.today() - timedelta(days=365)).strftime("%Y%m%d")
@@ -236,8 +264,9 @@ def update_merge_txt(corp_code, v1_row):
             "page_count": 50,
         })
     except Exception as e:
-        print(f"  [ERROR] 공시 목록 조회 실패: {e}")
-        return
+        log(f"  [ERROR] 공시 목록 조회 실패: {e}")
+        issues.append(f"{v1_row['name']}: 합병 일정 조회 실패 ({e})")
+        return None
 
     merge_rcept_no = None
     for item in result.get("list", []):
@@ -248,12 +277,14 @@ def update_merge_txt(corp_code, v1_row):
             break  # list는 최신순이므로 첫 번째가 최신
 
     if not merge_rcept_no:
-        print(f"  [SKIP] 합병결정 공시를 찾지 못함")
-        return
+        log(f"  [SKIP] 합병결정 공시를 찾지 못함")
+        issues.append(f"{v1_row['name']}: 합병결정 공시를 찾지 못해 일정 미반영")
+        return None
 
     text = dart_download_doc(merge_rcept_no)
     if not text:
-        return
+        issues.append(f"{v1_row['name']}: 합병결정 공시 원문을 읽지 못함")
+        return None
 
     # 기재정정이 있는 경우 '정정 후' 이후 텍스트를 기준으로 파싱
     after_correction = text
@@ -337,14 +368,23 @@ def update_merge_txt(corp_code, v1_row):
 
     if existing:
         entries = [new_entry if e.get("code") == code else e for e in entries]
-        print(f"  ✓ merge.txt 업데이트: {name}")
+        log(f"  ✓ merge.txt 업데이트: {name}")
     else:
         entries.append(new_entry)
-        print(f"  ✓ merge.txt 추가: {name}")
+        log(f"  ✓ merge.txt 추가: {name}")
 
     with open(MERGE_PATH, "w", encoding="utf-8") as f:
         json.dump(entries, f, ensure_ascii=False, indent=2)
         f.write("\n")
+
+    return {
+        "target": target_name,
+        "halt_start": new_entry["tradingHaltStartDate"],
+        "halt_end": new_entry["tradingHaltEndDate"],
+        "listing": new_entry["newShareListingDate"],
+        "appraisal_start": new_entry["appraisalRightStartDate"],
+        "appraisal_end": new_entry["appraisalRightEndDate"],
+    }
 
 
 # ── founders.json 파싱/저장 ───────────────────────────────────────────────────
@@ -362,10 +402,11 @@ def save_founders(data):
 
 
 # ── 주요주주 변동 처리 ─────────────────────────────────────────────────────────
-def process_majorstock_change(corp_code, corp_name, stock_code):
+def process_majorstock_change(corp_code, corp_name, stock_code, issues):
     """
     주요주주특정증권등소유상황보고서 감지 시 DART majorstock API로
     최신 주요주주 현황을 조회해 founders.json을 갱신한다.
+    반영했으면 변경 내역 dict, 아니면 None.
 
     DART majorstock API (list.json):
       corp_code  : DART 고유번호
@@ -374,22 +415,24 @@ def process_majorstock_change(corp_code, corp_name, stock_code):
       repror_nm(보고자), stkqy(보유주식수), stkqy_irds(증감),
       report_resn(보고사유)
     """
-    print(f"  → 주요주주 변동 감지: {corp_name} ({stock_code})")
+    log(f"  → 주요주주 변동 감지: {corp_name} ({stock_code})")
 
     try:
         result = dart_get("majorstock.json", {"corp_code": corp_code})
     except Exception as e:
-        print(f"  [ERROR] majorstock 조회 실패: {e}")
-        return False
+        log(f"  [ERROR] majorstock 조회 실패: {e}")
+        issues.append(f"{corp_name}: 주요주주 조회 실패 ({e})")
+        return None
 
     if result.get("status") != "000":
-        print(f"  [SKIP] majorstock API 오류: {result.get('message')}")
-        return False
+        log(f"  [SKIP] majorstock API 오류: {result.get('message')}")
+        issues.append(f"{corp_name}: 주요주주 API 오류 ({result.get('message')})")
+        return None
 
     items = result.get("list", [])
     if not items:
-        print(f"  [SKIP] 주요주주 목록 없음")
-        return False
+        log(f"  [SKIP] 주요주주 목록 없음")
+        return None
 
     # 보고자별 최신 보유주식수 집계 (동일 보고자의 최신 보고 기준)
     latest: dict[str, dict] = {}
@@ -430,8 +473,9 @@ def process_majorstock_change(corp_code, corp_name, stock_code):
         })
 
     if not new_founders:
-        print(f"  [SKIP] 유효한 주주 데이터 없음")
-        return False
+        log(f"  [SKIP] 유효한 주주 데이터 없음")
+        issues.append(f"{corp_name}: 유효한 주주 데이터가 없어 미반영")
+        return None
 
     # founders.json 업데이트
     data = load_founders()
@@ -447,13 +491,17 @@ def process_majorstock_change(corp_code, corp_name, stock_code):
     if existing_idx is not None:
         old_founders = data[existing_idx].get("founders", [])
         data[existing_idx] = entry
-        print(f"  ✓ founders.json 갱신: {corp_name} ({len(old_founders)}명 → {len(new_founders)}명)")
+        log(f"  ✓ founders.json 갱신: {corp_name} ({len(old_founders)}명 → {len(new_founders)}명)")
+        change = {"name": corp_name, "code": stock_code,
+                  "old_count": len(old_founders), "new_count": len(new_founders)}
     else:
         data.append(entry)
-        print(f"  ✓ founders.json 신규 추가: {corp_name} ({len(new_founders)}명)")
+        log(f"  ✓ founders.json 신규 추가: {corp_name} ({len(new_founders)}명)")
+        change = {"name": corp_name, "code": stock_code,
+                  "old_count": None, "new_count": len(new_founders)}
 
     save_founders(data)
-    return True
+    return change
 
 
 # ── 공시 목록 조회 ─────────────────────────────────────────────────────────────
@@ -491,7 +539,7 @@ def get_recent_spac_disclosures(bgn_de, end_de):
                        MERGE_CANCEL_KEYWORDS + MAJORSTOCK_KEYWORDS):
                     items.append(item)
         except Exception as e:
-            print(f"  [WARN] {info['name']} 조회 실패: {e}")
+            log(f"  [WARN] {info['name']} 조회 실패: {e}")
 
     return items
 
@@ -510,16 +558,121 @@ def save_state(state):
 
 
 # ── Git 커밋/푸시 ─────────────────────────────────────────────────────────────
+def git(*args, **kwargs):
+    return subprocess.run(["git", *args], cwd=REPO_DIR,
+                          capture_output=True, text=True, **kwargs)
+
+
+def unpushed_count():
+    """origin/main 보다 앞서 있는 로컬 커밋 수. 알 수 없으면 0."""
+    r = git("rev-list", "--count", "origin/main..HEAD")
+    try:
+        return int(r.stdout.strip())
+    except ValueError:
+        return 0
+
+
 def git_commit_push(message):
-    os.chdir(REPO_DIR)
-    subprocess.run(["git", "add", "data/v1.txt", "data/merge.txt", "data/founders.json"], check=True)
-    result = subprocess.run(["git", "diff", "--cached", "--quiet"])
-    if result.returncode == 0:
-        print("  변경사항 없음, 커밋 스킵")
-        return
-    subprocess.run(["git", "commit", "-m", message], check=True)
-    subprocess.run(["git", "push", "origin", "main"], check=True)
-    print(f"  ✓ 커밋/푸시 완료: {message}")
+    """커밋 후 푸시. 결과를 ('ok'|'nothing'|'error', 상세) 로 돌려준다.
+
+    푸시만 실패한 이전 실행이 있으면 로컬에 커밋이 남는데, 그 상태에서는
+    다음 실행이 'add 했지만 staged 변경 없음' 으로 판정해 푸시를 아예
+    시도하지 않는다. 그래서 커밋 여부와 무관하게 미푸시 커밋을 먼저 확인한다.
+    """
+    git("add", "data/v1.txt", "data/merge.txt", "data/founders.json")
+    staged = git("diff", "--cached", "--quiet").returncode != 0
+
+    if staged:
+        r = git("commit", "-m", message)
+        if r.returncode != 0:
+            log(f"  [ERROR] 커밋 실패: {r.stderr.strip()}")
+            return "error", f"커밋 실패: {r.stderr.strip()}"
+    else:
+        log("  변경사항 없음, 커밋 스킵")
+
+    pending = unpushed_count()
+    if not pending:
+        return ("nothing" if not staged else "ok"), "푸시할 커밋 없음"
+
+    r = git("push", "origin", "main")
+    if r.returncode != 0:
+        log(f"  [ERROR] 푸시 실패: {r.stderr.strip()}")
+        return "error", f"미푸시 커밋 {pending}건 — 푸시 실패: {r.stderr.strip()}"
+
+    log(f"  ✓ 커밋/푸시 완료: {message}")
+    return "ok", f"커밋 {pending}건 푸시 완료"
+
+
+# ── 슬랙 레포트 ───────────────────────────────────────────────────────────────
+STATUS_LABEL = {
+    "NORMAL": "정상",
+    "MERGE_REVIEW": "합병 결의",
+    "MERGE_APPROVED": "합병 승인",
+}
+
+
+def fmt_date(yyyymmdd):
+    """'20260309' → '2026-03-09'. 비어 있으면 빈 문자열."""
+    if not yyyymmdd or len(yyyymmdd) != 8:
+        return ""
+    return f"{yyyymmdd[:4]}-{yyyymmdd[4:6]}-{yyyymmdd[6:]}"
+
+
+def build_report(today, seen_count, new_count, rates, merges, founders, issues, git_status):
+    """슬랙에 그대로 붙일 수 있는 텍스트를 만든다 (마크다운 없이 이모지 + 텍스트)."""
+    L = [f"📄 [{today:%m/%d}] DART 스팩 공시 업데이트", ""]
+
+    total = len(rates) + len(merges) + len(founders)
+    if not total:
+        L.append(f"변경 사항 없음 (공시 {seen_count}건 확인, 신규 {new_count}건)")
+    else:
+        L.append(f"공시 {seen_count}건 확인 · 신규 {new_count}건 · 반영 {total}건")
+
+    if rates:
+        L += ["", "💰 예치이율 변경"]
+        for c in rates:
+            L.append(f"· {c['name']} ({c['code']}) {c['year']}년차: {c['old']} → {c['new']}")
+
+    if merges:
+        L += ["", "🤝 합병 상태 변경"]
+        for c in merges:
+            old = STATUS_LABEL.get(c["old"], c["old"])
+            new = STATUS_LABEL.get(c["new"], c["new"])
+            L.append(f"· {c['name']} ({c['code']}) {old} → {new}")
+            s = c.get("schedule")
+            if s:
+                if s.get("target"):
+                    L.append(f"   합병 상대: {s['target']}")
+                halt = fmt_date(s.get("halt_start"))
+                if halt:
+                    L.append(f"   매매거래 정지: {halt} ~ {fmt_date(s.get('halt_end'))}")
+                appraisal = fmt_date(s.get("appraisal_start"))
+                if appraisal:
+                    L.append(f"   주식매수청구권: {appraisal} ~ {fmt_date(s.get('appraisal_end'))}")
+                listing = fmt_date(s.get("listing"))
+                if listing:
+                    L.append(f"   신주 상장 예정: {listing}")
+
+    if founders:
+        L += ["", "👥 주요주주 변동"]
+        for c in founders:
+            if c["old_count"] is None:
+                L.append(f"· {c['name']} ({c['code']}) 신규 등록 {c['new_count']}명")
+            else:
+                L.append(f"· {c['name']} ({c['code']}) {c['old_count']}명 → {c['new_count']}명")
+
+    if issues:
+        L += ["", "⚠️ 확인 필요"]
+        for msg in issues:
+            L.append(f"· {msg}")
+
+    state, detail = git_status
+    if state == "ok":
+        L += ["", f"✅ {detail}"]
+    elif state == "error":
+        L += ["", f"❌ {detail}"]
+
+    return "\n".join(L)
 
 
 # ── 메인 ──────────────────────────────────────────────────────────────────────
@@ -528,16 +681,16 @@ def main():
     bgn_de = (today - timedelta(days=3)).strftime("%Y%m%d")
     end_de = today.strftime("%Y%m%d")
 
-    print(f"[{today}] DART 공시 조회: {bgn_de} ~ {end_de}")
+    log(f"[{today}] DART 공시 조회: {bgn_de} ~ {end_de}")
 
     state = load_state()
     processed = set(state.get("last_rcept_no", []))
 
     disclosures = get_recent_spac_disclosures(bgn_de, end_de)
-    print(f"  스팩 관련 공시 {len(disclosures)}건 발견")
+    log(f"  스팩 관련 공시 {len(disclosures)}건 발견")
 
     new_processed = []
-    changed = False
+    rates, merges, founders, issues = [], [], [], []
 
     for item in disclosures:
         rcept_no   = item.get("rcept_no", "")
@@ -548,48 +701,61 @@ def main():
         if rcept_no in processed:
             continue
 
-        print(f"\n공시: [{rcept_no}] {corp_name} - {report_nm}")
+        log(f"\n공시: [{rcept_no}] {corp_name} - {report_nm}")
+        corp_code  = item.get("corp_code", "")
 
         # 예치 금리 변경
         if any(kw in report_nm for kw in INTEREST_KEYWORDS):
-            if process_interest_change(rcept_no, corp_name, rcept_dt):
-                changed = True
+            c = process_interest_change(rcept_no, corp_name, rcept_dt, issues)
+            if c:
+                rates.append(c)
 
         # 합병 결의
         elif any(kw in report_nm for kw in MERGE_REVIEW_KEYWORDS):
-            corp_code = item.get("corp_code", "")
-            if process_merge_status(corp_code, corp_name, "MERGE_REVIEW"):
-                changed = True
+            c = process_merge_status(corp_code, corp_name, "MERGE_REVIEW", issues)
+            if c:
+                merges.append(c)
 
         # 합병 승인
         elif any(kw in report_nm for kw in MERGE_APPROVED_KEYWORDS):
-            corp_code = item.get("corp_code", "")
-            if process_merge_status(corp_code, corp_name, "MERGE_APPROVED"):
-                changed = True
+            c = process_merge_status(corp_code, corp_name, "MERGE_APPROVED", issues)
+            if c:
+                merges.append(c)
 
         # 합병 취소 → NORMAL 복귀
         elif any(kw in report_nm for kw in MERGE_CANCEL_KEYWORDS):
-            corp_code = item.get("corp_code", "")
-            if process_merge_status(corp_code, corp_name, "NORMAL"):
-                changed = True
+            c = process_merge_status(corp_code, corp_name, "NORMAL", issues)
+            if c:
+                merges.append(c)
 
         # 주요주주 변동 → founders.json 갱신
         elif any(kw in report_nm for kw in MAJORSTOCK_KEYWORDS):
-            corp_code  = item.get("corp_code", "")
-            stock_code = item.get("stock_code", "")
-            if process_majorstock_change(corp_code, corp_name, stock_code):
-                changed = True
+            c = process_majorstock_change(corp_code, corp_name,
+                                          item.get("stock_code", ""), issues)
+            if c:
+                founders.append(c)
 
         new_processed.append(rcept_no)
 
-    if changed:
-        git_commit_push(f"[auto] DART 공시 반영 ({today})")
+    # 데이터 변경이 없어도 호출한다. 이전 실행에서 푸시만 실패해 로컬에
+    # 남아 있는 커밋이 있으면 여기서 밀어 올린다.
+    git_status = git_commit_push(f"[auto] DART 공시 반영 ({today})")
 
     state["last_rcept_no"] = list(processed) + new_processed
     state["last_run"] = str(today)
     save_state(state)
-    print("\n완료")
+    log("\n완료")
+
+    print(build_report(today, len(disclosures), len(new_processed),
+                       rates, merges, founders, issues, git_status))
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        # 실패해도 슬랙에는 알려야 하므로 stdout 으로 에러 레포트를 낸다.
+        log(f"\n[FATAL] {type(e).__name__}: {e}")
+        print(f"📄 [{date.today():%m/%d}] DART 스팩 공시 업데이트\n\n"
+              f"❌ 실행 실패: {type(e).__name__}: {e}")
+        sys.exit(1)
