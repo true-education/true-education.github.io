@@ -1,3 +1,9 @@
 node_modules/
 web/dist/
 web/.env.local
+
+# DART API 키 등 로컬 비밀값
+.env
+
+__pycache__/
+*.pyc

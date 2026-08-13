@@ -22,7 +22,9 @@ import urllib.request
 import urllib.parse
 
 # ── 설정 ──────────────────────────────────────────────────────────────────────
-DART_API_KEY   = "cebe93589e687856da2d84703fbad8ac87f0a98f"
+from dart_key import load_dart_api_key
+
+DART_API_KEY   = load_dart_api_key()
 DART_BASE      = "https://opendart.fss.or.kr/api"
 REPO_DIR       = Path(__file__).parent.parent  # ~/build/true-data
 V1_PATH        = REPO_DIR / "data" / "v1.txt"
