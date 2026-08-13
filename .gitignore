@@ -7,3 +7,6 @@ web/.env.local
 
 __pycache__/
 *.pyc
+
+# 스크립트 실행 상태 (로컬 전용)
+scripts/.last_processed.json
