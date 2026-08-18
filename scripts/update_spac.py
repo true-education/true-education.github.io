@@ -147,10 +147,15 @@ def get_year_index(listing_date_str, change_date_str):
         → 다음 3년차 금리를 변경하는 공시 → return 3
 
     단, 이미 3년차인 경우(경과 24개월 이상)는 3년차를 반환한다.
+
+    경과 개월수는 일자까지 본다. 상장 2025-08-14 / 변경 2026-08-11 이면
+    아직 1년이 안 찼으므로 12개월이 아니라 11개월로 센다.
     """
     listing = datetime.strptime(listing_date_str, "%Y-%m-%d").date()
     change  = datetime.strptime(change_date_str, "%Y-%m-%d").date()
     months  = (change.year - listing.year) * 12 + (change.month - listing.month)
+    if change.day < listing.day:
+        months -= 1
     if months < 12:
         # 1년차 중 공시 → 2년차 금리 변경
         return 2
@@ -572,6 +577,35 @@ def unpushed_count():
         return 0
 
 
+def git_sync():
+    """처리 전에 원격을 반영한다. ('ok'|'aborted', 상세)
+
+    데이터 파일이 원격보다 낡은 상태로 값을 덮어쓰면, 다른 경로로 올린
+    수정이 그대로 날아간다. fast-forward 로 따라잡을 수 있으면 따라잡고,
+    갈라져 있으면 손대지 않고 중단한다.
+    """
+    r = git("fetch", "origin", "main")
+    if r.returncode != 0:
+        return "aborted", f"fetch 실패: {r.stderr.strip()}"
+
+    behind = git("rev-list", "--count", "HEAD..origin/main").stdout.strip()
+    try:
+        behind = int(behind)
+    except ValueError:
+        behind = 0
+    if not behind:
+        return "ok", ""
+
+    r = git("merge", "--ff-only", "origin/main")
+    if r.returncode != 0:
+        ahead = unpushed_count()
+        return "aborted", (f"로컬이 원격과 갈라져 있어 중단했습니다 "
+                           f"(behind {behind}, ahead {ahead}). 수동으로 정리해 주세요.")
+
+    log(f"  원격 {behind}커밋 반영")
+    return "ok", f"원격 {behind}커밋 반영"
+
+
 def git_commit_push(message):
     """커밋 후 푸시. 결과를 ('ok'|'nothing'|'error', 상세) 로 돌려준다.
 
@@ -682,6 +716,12 @@ def main():
     end_de = today.strftime("%Y%m%d")
 
     log(f"[{today}] DART 공시 조회: {bgn_de} ~ {end_de}")
+
+    sync_state, sync_detail = git_sync()
+    if sync_state == "aborted":
+        log(f"  [ABORT] {sync_detail}")
+        print(f"📄 [{today:%m/%d}] DART 스팩 공시 업데이트\n\n❌ {sync_detail}")
+        sys.exit(1)
 
     state = load_state()
     processed = set(state.get("last_rcept_no", []))
