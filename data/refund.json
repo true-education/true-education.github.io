@@ -26,5 +26,12 @@
         "refundAmount": 2152.77,
         "date": "20261112",
         "fixed": false
+    },
+        "469880": {
+        "code": "471050",
+        "nameKr": "대신밸런스제17호스팩",
+        "refundAmount": 2153.97,
+        "date": "20261223",
+        "fixed": false
     }
 }
