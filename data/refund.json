@@ -9,9 +9,9 @@
     "464440": {
         "code": "464440",
         "nameKr": "한국제13호스팩",
-        "refundAmount": 2154.11,
+        "refundAmount": 2153.7,
         "date": "20260930",
-        "fixed": false
+        "fixed": true
     },
     "467930": {
         "code": "467930",
