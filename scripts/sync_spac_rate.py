@@ -206,21 +206,27 @@ def main():
 
     if not changed:
         print(f"변경할 종목 없음 (기준 {base_date}, {rate_pct}%)")
-        return 1 if problems else 0
 
     if args.dry_run:
-        print(f"{len(changed)}건 — --dry-run 이라 저장하지 않았습니다.")
+        if changed:
+            print(f"{len(changed)}건 — --dry-run 이라 저장하지 않았습니다.")
         return 1 if problems else 0
 
-    with open(V1_PATH, "w", encoding="utf-8") as f:
-        f.write("\n".join(line for line, _ in rows) + "\n")
-    print(f"{len(changed)}건 변경 저장")
+    if changed:
+        with open(V1_PATH, "w", encoding="utf-8") as f:
+            f.write("\n".join(line for line, _ in rows) + "\n")
+        print(f"{len(changed)}건 변경 저장")
 
     if args.no_git:
         return 1 if problems else 0
 
-    state, detail = commit_push(
-        f"[auto] 공시 전 {len(changed)}종목 예치이율 {rate_pct}% 반영 ({base_date})")
+    # 이율이 그대로여도 스냅샷은 매일 새 날짜가 쌓이므로 커밋 단계까지 간다.
+    # 여기서 빠지면 작업 트리가 계속 더러운 채로 남아 다음 ff-only 동기화를 막는다.
+    if changed:
+        message = f"[auto] 공시 전 {len(changed)}종목 예치이율 {rate_pct}% 반영 ({base_date})"
+    else:
+        message = f"[auto] 한국증권금융 고시금리 스냅샷 ({base_date})"
+    state, detail = commit_push(message)
     print(f"git: {detail}")
     return 1 if (problems or state == "error") else 0
 
