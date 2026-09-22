@@ -161,15 +161,16 @@ def main():
         return
 
     before = snapshots.get(base_date)
+
+    # 같은 날 다시 돌렸는데 값도 같으면 fetchedAt 만 달라진다. 그것 때문에
+    # 파일을 다시 쓰면 의미 없는 커밋과 배포가 생기므로 손대지 않는다.
+    if before and before.get("fixed") == snap["fixed"] and before.get("demand") == snap["demand"]:
+        print(f"→ {base_date} 기존 값과 동일, 저장 생략 (총 {len(snapshots)}일치)")
+        return
+
     snapshots[base_date] = snap
     save(snapshots)
-
-    if before is None:
-        print(f"→ {base_date} 신규 저장 (총 {len(snapshots)}일치)")
-    elif before.get("fixed") == snap["fixed"] and before.get("demand") == snap["demand"]:
-        print(f"→ {base_date} 기존 값과 동일 (총 {len(snapshots)}일치)")
-    else:
-        print(f"→ {base_date} 갱신 (총 {len(snapshots)}일치)")
+    print(f"→ {base_date} {'신규 저장' if before is None else '갱신'} (총 {len(snapshots)}일치)")
 
 
 if __name__ == "__main__":
