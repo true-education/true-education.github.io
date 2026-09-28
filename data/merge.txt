@@ -11,5 +11,44 @@
     "tradingHaltEndDate": "20260609",
     "newShareListingDate": "20260610",
     "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260512000218"
+  },
+  {
+    "nameKr": "IBKS제24호스팩",
+    "code": "469480",
+    "target": "럭스코(LUXCo Co., LTD.)",
+    "dissentNoticeStartDate": "20261019",
+    "dissentNoticeEndDate": "20261102",
+    "appraisalRightStartDate": "20261103",
+    "appraisalRightEndDate": "20261124",
+    "tradingHaltStartDate": "20261203",
+    "tradingHaltEndDate": "20261223",
+    "newShareListingDate": "20261224",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260619000664"
+  },
+  {
+    "nameKr": "한화플러스제5호스팩",
+    "code": "498390",
+    "target": "솔리스 (Solis Co., Ltd)",
+    "dissentNoticeStartDate": "20261229",
+    "dissentNoticeEndDate": "20270112",
+    "appraisalRightStartDate": "20270113",
+    "appraisalRightEndDate": "20270202",
+    "tradingHaltStartDate": "20270217",
+    "tradingHaltEndDate": "20270302",
+    "newShareListingDate": "20270303",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000299"
+  },
+  {
+    "nameKr": "IBKS제25호스팩",
+    "code": "0099X0",
+    "target": "셀트릭스",
+    "dissentNoticeStartDate": "20261022",
+    "dissentNoticeEndDate": "20261105",
+    "appraisalRightStartDate": "20261106",
+    "appraisalRightEndDate": "20261126",
+    "tradingHaltStartDate": "20261208",
+    "tradingHaltEndDate": "20261223",
+    "newShareListingDate": "20261224",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260630000618"
   }
 ]
