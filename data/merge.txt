@@ -16,26 +16,26 @@
     "nameKr": "한화플러스제5호스팩",
     "code": "498390",
     "target": "솔리스 (Solis Co., Ltd)",
-    "dissentNoticeStartDate": "20261229",
-    "dissentNoticeEndDate": "20270112",
-    "appraisalRightStartDate": "20270113",
-    "appraisalRightEndDate": "20270202",
-    "tradingHaltStartDate": "20270217",
-    "tradingHaltEndDate": "20270302",
-    "newShareListingDate": "20270303",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000299"
+    "dissentNoticeStartDate": "20261027",
+    "dissentNoticeEndDate": "20261110",
+    "appraisalRightStartDate": "20261111",
+    "appraisalRightEndDate": "20261201",
+    "tradingHaltStartDate": "20261210",
+    "tradingHaltEndDate": "20261228",
+    "newShareListingDate": "20261229",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260929000098"
   },
   {
     "nameKr": "IBKS제25호스팩",
     "code": "0099X0",
     "target": "셀트릭스",
-    "dissentNoticeStartDate": "20261022",
-    "dissentNoticeEndDate": "20261105",
-    "appraisalRightStartDate": "20261106",
-    "appraisalRightEndDate": "20261126",
-    "tradingHaltStartDate": "20261208",
-    "tradingHaltEndDate": "20261223",
-    "newShareListingDate": "20261224",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260630000618"
+    "dissentNoticeStartDate": "20261023",
+    "dissentNoticeEndDate": "20261106",
+    "appraisalRightStartDate": "20261109",
+    "appraisalRightEndDate": "20261130",
+    "tradingHaltStartDate": "20261210",
+    "tradingHaltEndDate": "20261229",
+    "newShareListingDate": "20261230",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260929000142"
   }
 ]
