@@ -219,37 +219,49 @@ def process_interest_change(rcept_no, corp_name, rcept_dt, issues):
 
 
 # ── 합병 상태 처리 ─────────────────────────────────────────────────────────────
-def process_merge_status(corp_code, corp_name, new_status, issues):
+def process_merge_status(corp_code, corp_name, new_status, issues, is_correction=False):
     """합병 결의/승인 상태 업데이트. 반영했으면 변경 내역 dict, 아니면 None.
 
     MERGE_APPROVED 이면 merge.txt 도 갱신하고 파싱된 일정을 함께 담는다.
+
+    is_correction=True (정정 신고서)인 경우, 이미 MERGE_REVIEW/MERGE_APPROVED로
+    진행 중인 건이면 상태를 되돌리지 않는다. 기재정정 주요사항보고서(회사합병결정)는
+    최초 합병결의와 같은 키워드로 잡히지만 실제로는 일정 변경일 뿐이기 때문이다.
+    이 경우에도 merge.txt 의 일정은 갱신한다.
     """
     rows = load_v1()
     change = None
     target_row = None
     for row in rows:
         if corp_name in row["name"] or row["name"] in corp_name:
+            target_row = row
             old = row["status"]
-            if old != new_status:
+            if is_correction and old in ("MERGE_REVIEW", "MERGE_APPROVED"):
+                log(f"  → 정정 공시: 상태 유지({old}), 일정만 갱신")
+            elif old != new_status:
                 row["status"] = new_status
                 log(f"  ✓ {row['name']} ({row['code']}) 상태: {old} → {new_status}")
                 change = {
                     "name": row["name"], "code": row["code"],
                     "old": old, "new": new_status, "schedule": None,
                 }
-                target_row = row
             break
 
     if change:
         save_v1(rows)
-    else:
+    elif target_row is None:
         log(f"  [SKIP] 상태 변경 없음: {corp_name}")
 
-    # MERGE_APPROVED이면 merge.txt 업데이트
-    if new_status == "MERGE_APPROVED" and target_row:
+    # merge.txt 업데이트: 합병이 승인 단계에 들어섰거나, 이미 진행 중인 건에 대한 정정 공시인 경우
+    if target_row and (target_row["status"] == "MERGE_APPROVED" or (is_correction and target_row["status"] == "MERGE_REVIEW")):
         schedule = update_merge_txt(corp_code, target_row, issues)
         if change:
             change["schedule"] = schedule
+        elif schedule:
+            change = {
+                "name": target_row["name"], "code": target_row["code"],
+                "old": target_row["status"], "new": target_row["status"], "schedule": schedule,
+            }
 
     return change
 
@@ -273,22 +285,32 @@ def update_merge_txt(corp_code, v1_row, issues):
         issues.append(f"{v1_row['name']}: 합병 일정 조회 실패 ({e})")
         return None
 
-    merge_rcept_no = None
-    for item in result.get("list", []):
-        nm = item.get("report_nm", "")
-        if any(kw in nm for kw in MERGE_REVIEW_KEYWORDS):
-            # 가장 최근 것 사용 (기재정정 포함)
-            merge_rcept_no = item["rcept_no"]
-            break  # list는 최신순이므로 첫 번째가 최신
+    candidates = [
+        item["rcept_no"] for item in result.get("list", [])
+        if any(kw in item.get("report_nm", "") for kw in MERGE_REVIEW_KEYWORDS)
+    ]  # list는 최신순 (기재정정 포함)
 
-    if not merge_rcept_no:
+    if not candidates:
         log(f"  [SKIP] 합병결정 공시를 찾지 못함")
         issues.append(f"{v1_row['name']}: 합병결정 공시를 찾지 못해 일정 미반영")
         return None
 
-    text = dart_download_doc(merge_rcept_no)
+    # 가장 최근 것부터 시도. [첨부정정]처럼 본문 없이 첨부만 고친 정정은
+    # document.xml 이 비어있거나 zip이 아니어서(status 014) 실패하므로 건너뛴다.
+    merge_rcept_no, text = None, None
+    for rcept_no in candidates:
+        try:
+            candidate_text = dart_download_doc(rcept_no)
+        except Exception as e:
+            log(f"  [SKIP] {rcept_no} 원문 다운로드 실패 (첨부정정 등으로 본문 없음): {e}")
+            continue
+        if candidate_text and "합병일정" in candidate_text:
+            merge_rcept_no, text = rcept_no, candidate_text
+            break
+        log(f"  [SKIP] {rcept_no} 본문에 합병일정 없음")
+
     if not text:
-        issues.append(f"{v1_row['name']}: 합병결정 공시 원문을 읽지 못함")
+        issues.append(f"{v1_row['name']}: 합병결정 공시 원문을 읽지 못함 (첨부정정만 존재)")
         return None
 
     # 기재정정이 있는 경우 '정정 후' 이후 텍스트를 기준으로 파싱
@@ -750,9 +772,10 @@ def main():
             if c:
                 rates.append(c)
 
-        # 합병 결의
+        # 합병 결의 (정정 신고서는 이미 진행 중인 건의 일정 변경으로 취급)
         elif any(kw in report_nm for kw in MERGE_REVIEW_KEYWORDS):
-            c = process_merge_status(corp_code, corp_name, "MERGE_REVIEW", issues)
+            c = process_merge_status(corp_code, corp_name, "MERGE_REVIEW", issues,
+                                      is_correction="정정" in report_nm)
             if c:
                 merges.append(c)
 
