@@ -227,7 +227,8 @@ def process_merge_status(corp_code, corp_name, new_status, issues, is_correction
     is_correction=True (정정 신고서)인 경우, 이미 MERGE_REVIEW/MERGE_APPROVED로
     진행 중인 건이면 상태를 되돌리지 않는다. 기재정정 주요사항보고서(회사합병결정)는
     최초 합병결의와 같은 키워드로 잡히지만 실제로는 일정 변경일 뿐이기 때문이다.
-    이 경우에도 merge.txt 의 일정은 갱신한다.
+    단, merge.txt 갱신은 MERGE_APPROVED 건에 한한다 (MERGE_REVIEW는 아직 심사 중이라
+    정정 공시가 있어도 확정 일정이 아니다).
     """
     rows = load_v1()
     change = None
@@ -252,8 +253,9 @@ def process_merge_status(corp_code, corp_name, new_status, issues, is_correction
     elif target_row is None:
         log(f"  [SKIP] 상태 변경 없음: {corp_name}")
 
-    # merge.txt 업데이트: 합병이 승인 단계에 들어섰거나, 이미 진행 중인 건에 대한 정정 공시인 경우
-    if target_row and (target_row["status"] == "MERGE_APPROVED" or (is_correction and target_row["status"] == "MERGE_REVIEW")):
+    # merge.txt 업데이트: 합병이 승인된 경우에만. MERGE_REVIEW 단계의 정정 공시는
+    # 일정 변경일 뿐 심사가 끝난 게 아니므로 merge.txt에 반영하지 않는다.
+    if target_row and target_row["status"] == "MERGE_APPROVED":
         schedule = update_merge_txt(corp_code, target_row, issues)
         if change:
             change["schedule"] = schedule
