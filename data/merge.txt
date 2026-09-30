@@ -37,5 +37,18 @@
     "tradingHaltEndDate": "20261229",
     "newShareListingDate": "20261230",
     "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260929000142"
+  },
+  {
+    "nameKr": "미래에셋비전스팩7호",
+    "code": "482680",
+    "target": "오토핸즈",
+    "dissentNoticeStartDate": "20261223",
+    "dissentNoticeEndDate": "20270106",
+    "appraisalRightStartDate": "20270107",
+    "appraisalRightEndDate": "20270127",
+    "tradingHaltStartDate": "20270205",
+    "tradingHaltEndDate": "20270303",
+    "newShareListingDate": "20270304",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260930000489"
   }
 ]
