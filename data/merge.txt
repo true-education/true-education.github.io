@@ -3,14 +3,14 @@
     "nameKr": "IBKS제24호스팩",
     "code": "469480",
     "target": "럭스코(LUXCo Co., LTD.)",
-    "dissentNoticeStartDate": "20261019",
-    "dissentNoticeEndDate": "20261102",
-    "appraisalRightStartDate": "20261103",
-    "appraisalRightEndDate": "20261124",
-    "tradingHaltStartDate": "20261203",
-    "tradingHaltEndDate": "20261223",
-    "newShareListingDate": "20261224",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260619000664"
+    "dissentNoticeStartDate": "20261027",
+    "dissentNoticeEndDate": "20261110",
+    "appraisalRightStartDate": "20261111",
+    "appraisalRightEndDate": "20261201",
+    "tradingHaltStartDate": "20261210",
+    "tradingHaltEndDate": "20261224",
+    "newShareListingDate": "20261228",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261002000602"
   },
   {
     "nameKr": "한화플러스제5호스팩",
