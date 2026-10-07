@@ -23,7 +23,7 @@
     "tradingHaltStartDate": "20261210",
     "tradingHaltEndDate": "20261228",
     "newShareListingDate": "20261229",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260929000098"
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261007000082"
   },
   {
     "nameKr": "IBKS제25호스팩",
