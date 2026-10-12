@@ -33,5 +33,19 @@
         "refundAmount": 2153.97,
         "date": "20261223",
         "fixed": false
+    },
+    "473050": {
+        "code": "473050",
+        "nameKr": "유안타제15호스팩",
+        "refundAmount": 2155.83,
+        "date": "20270203",
+        "fixed": false
+    },
+    "472230": {
+        "code": "472230",
+        "nameKr": "에스케이증권제11호스팩",
+        "refundAmount": 2155.86,
+        "date": "20270203",
+        "fixed": false
     }
 }
