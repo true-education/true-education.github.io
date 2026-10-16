@@ -46,7 +46,7 @@ function PriceCell({ price, liveInfo }: {
       <span style={{ fontWeight: 600, color: price > 0 ? '#1e293b' : '#9ca3af', cursor: liveInfo ? 'default' : undefined }}>
         {price > 0 ? price.toLocaleString() + '원' : '-'}
       </span>
-      {liveInfo && change !== 0 && (
+      {liveInfo && (
         <span style={{ marginLeft: 4, fontSize: 11, color: changeColor }}>
           {changeSign}{change.toLocaleString()}
         </span>
