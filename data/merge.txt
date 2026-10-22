@@ -29,13 +29,13 @@
     "nameKr": "IBKS제25호스팩",
     "code": "0099X0",
     "target": "셀트릭스",
-    "dissentNoticeStartDate": "20261027",
-    "dissentNoticeEndDate": "20261110",
-    "appraisalRightStartDate": "20261111",
-    "appraisalRightEndDate": "20261201",
-    "tradingHaltStartDate": "20261210",
-    "tradingHaltEndDate": "20261228",
-    "newShareListingDate": "20261229",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261015000139"
+    "dissentNoticeStartDate": "20261102",
+    "dissentNoticeEndDate": "20261116",
+    "appraisalRightStartDate": "20261117",
+    "appraisalRightEndDate": "20261207",
+    "tradingHaltStartDate": "20261216",
+    "tradingHaltEndDate": "20270105",
+    "newShareListingDate": "20270106",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261021000442"
   }
 ]
