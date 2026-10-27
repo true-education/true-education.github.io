@@ -16,14 +16,14 @@
     "nameKr": "한화플러스제5호스팩",
     "code": "498390",
     "target": "솔리스 (Solis Co., Ltd)",
-    "dissentNoticeStartDate": "20261028",
-    "dissentNoticeEndDate": "20261111",
-    "appraisalRightStartDate": "20261112",
-    "appraisalRightEndDate": "20261202",
-    "tradingHaltStartDate": "20261211",
-    "tradingHaltEndDate": "20261228",
-    "newShareListingDate": "20261229",
-    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261016000273"
+    "dissentNoticeStartDate": "20261111",
+    "dissentNoticeEndDate": "20261125",
+    "appraisalRightStartDate": "20261126",
+    "appraisalRightEndDate": "20261216",
+    "tradingHaltStartDate": "20261224",
+    "tradingHaltEndDate": "20270112",
+    "newShareListingDate": "20270113",
+    "disclosureUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261027000380"
   },
   {
     "nameKr": "IBKS제25호스팩",
