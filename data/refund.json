@@ -2,9 +2,9 @@
     "467930": {
         "code": "467930",
         "nameKr": "IBKS제23호스팩",
-        "refundAmount": 2160.86,
+        "refundAmount": 2148.8,
         "date": "20261103",
-        "fixed": false
+        "fixed": true
     },
     "469880": {
         "code": "469880",
