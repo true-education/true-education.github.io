@@ -93,56 +93,6 @@
         "source": "ipo"
     },
     {
-        "code": "472230",
-        "nameKr": "SK증권제11호스팩",
-        "founders": [
-            {
-                "name": "(주)오픈워터인베스트먼트",
-                "shares": 155000,
-                "pct": 96.77,
-                "note": "최대주주"
-            },
-            {
-                "name": "SK증권(주)",
-                "shares": 5000,
-                "pct": 3.23,
-                "note": "투자매매업자"
-            }
-        ],
-        "source": "ipo"
-    },
-    {
-        "code": "469900",
-        "nameKr": "하나31호스팩",
-        "founders": [],
-        "source": ""
-    },
-    {
-        "code": "473370",
-        "nameKr": "비엔케이제2호스팩",
-        "founders": [
-            {
-                "name": "현대기술투자(주)",
-                "shares": 200000,
-                "pct": 95.24,
-                "note": "최대주주"
-            },
-            {
-                "name": "(주)비엔케이투자증권",
-                "shares": 10000,
-                "pct": 4.76,
-                "note": "투자매매업자"
-            }
-        ],
-        "source": "ipo"
-    },
-    {
-        "code": "475240",
-        "nameKr": "하나32호스팩",
-        "founders": [],
-        "source": ""
-    },
-    {
         "code": "474660",
         "nameKr": "신한제12호스팩",
         "founders": [
