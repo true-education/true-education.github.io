@@ -84,11 +84,14 @@ function PriceCell({ price, liveInfo }: {
 }
 
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640)
+  // innerWidth 는 모바일 브라우저에서 스크롤·줌 중에 바뀔 수 있어 CSS 미디어쿼리 기준으로 판단
+  const query = '(max-width: 639px)'
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia(query).matches)
   useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 640)
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
+    const mql = window.matchMedia(query)
+    const handler = () => setIsMobile(mql.matches)
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
   }, [])
   return isMobile
 }
