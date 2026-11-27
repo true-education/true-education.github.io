@@ -54,5 +54,12 @@
         "refundAmount": 2142.55,
         "date": "20270304",
         "fixed": false
+    },
+    "474930": {
+        "code": "474930",
+        "nameKr": "신한제13호스팩",
+        "refundAmount": 2148.13,
+        "date": "20270317",
+        "fixed": false
     }
 }
