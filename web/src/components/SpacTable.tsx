@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { trackButtonClick, trackSortChange } from '../analytics'
 import type { SpacItem } from '../types'
 import type { StockInfo, SpacPriceMap } from '../firebase'
@@ -28,20 +28,30 @@ const STATUS_STYLE: Record<string, { background: string; color: string }> = {
 type SortKey = 'name' | 'redemptionPrice' | 'listingDate' | 'prevPrice'
 
 // OHLCV 툴팁 컴포넌트
+const TOOLTIP_HEIGHT = 190
 function PriceCell({ price, liveInfo }: {
   price: number
   liveInfo?: { open: string; high: string; low: string; previousClosePrice: string; volume: string; priceChange: string; priceChangeRate: string }
 }) {
-  const [show, setShow] = useState(false)
+  const [pos, setPos] = useState<{ right: number; top?: number; bottom?: number } | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const fmt = (s: string) => parseInt(s, 10).toLocaleString()
   const change = liveInfo ? parseInt(liveInfo.priceChange, 10) : 0
   const changeColor = change > 0 ? '#dc2626' : change < 0 ? '#2563eb' : '#6b7280'
   const changeSign = change > 0 ? '+' : ''
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
+    <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => {
+        const r = ref.current?.getBoundingClientRect()
+        if (!r) return
+        // 스크롤 컨테이너에 잘리지 않도록 fixed 로 띄우고, 아래 공간이 부족하면 위로 표시
+        const right = window.innerWidth - r.right
+        setPos(window.innerHeight - r.bottom < TOOLTIP_HEIGHT + 8
+          ? { right, bottom: window.innerHeight - r.top + 4 }
+          : { right, top: r.bottom + 4 })
+      }}
+      onMouseLeave={() => setPos(null)}
     >
       <span style={{ fontWeight: 600, color: price > 0 ? '#1e293b' : '#9ca3af', cursor: liveInfo ? 'default' : undefined }}>
         {price > 0 ? price.toLocaleString() + '원' : '-'}
@@ -51,9 +61,9 @@ function PriceCell({ price, liveInfo }: {
           {changeSign}{change.toLocaleString()}
         </span>
       )}
-      {show && liveInfo && (
+      {pos && liveInfo && (
         <div style={{
-          position: 'absolute', right: 0, top: '100%', marginTop: 4, zIndex: 50,
+          position: 'fixed', right: pos.right, top: pos.top, bottom: pos.bottom, zIndex: 50,
           background: '#1e293b', color: '#f8fafc', borderRadius: 8, padding: '10px 14px',
           fontSize: 12, whiteSpace: 'nowrap', boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
           lineHeight: 1.8,
