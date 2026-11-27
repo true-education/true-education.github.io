@@ -68,25 +68,6 @@
         "source": "ipo"
     },
     {
-        "code": "474930",
-        "nameKr": "신한제13호스팩",
-        "founders": [
-            {
-                "name": "(주)에이씨피씨",
-                "shares": 600000,
-                "pct": 96.77,
-                "note": "최대주주"
-            },
-            {
-                "name": "신한투자증권(주)",
-                "shares": 20000,
-                "pct": 3.23,
-                "note": "발기인"
-            }
-        ],
-        "source": "ipo"
-    },
-    {
         "code": "475250",
         "nameKr": "하나33호스팩",
         "founders": [],
